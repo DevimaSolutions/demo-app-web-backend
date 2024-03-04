@@ -9,6 +9,8 @@ import { loadConfig } from './config';
 import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
 import { MailerModule } from '@/features/mailer';
+import { SeederModule, SeederCommand } from '@/features/seeder';
+import { seederConfig } from '@/features/seeder/seeders';
 import { UserCommand, UsersModule } from '@/features/users';
 
 // TODO: Add global filter to return success object
@@ -33,10 +35,12 @@ import { UserCommand, UsersModule } from '@/features/users';
     AuthModule,
     MailerModule,
     CommandModule,
+    SeederModule.forRoot(seederConfig),
   ],
   controllers: [AppController],
   providers: [
     UserCommand,
+    SeederCommand,
     AppService,
     {
       provide: APP_INTERCEPTOR,
