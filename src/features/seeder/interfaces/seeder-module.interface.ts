@@ -4,7 +4,7 @@ import { Seeder } from '@/features/seeder';
 
 export interface SeederModuleOptions {
   seeders: Provider<Seeder>[];
-  imports?: Array<Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference>;
+  imports?: Array<Type | DynamicModule | Promise<DynamicModule> | ForwardReference>;
   providers?: Provider[];
   exports?: Provider[];
 }

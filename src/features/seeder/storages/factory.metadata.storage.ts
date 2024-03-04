@@ -1,20 +1,18 @@
-import { Type } from '@nestjs/common';
-
 import { IPropertyMetadata } from '@/features/seeder';
 
-export class FactoryMetadataStorageHost {
-  private properties = new Array<IPropertyMetadata>();
+export class FactoryMetadataStorageHost<E> {
+  private properties = new Array<IPropertyMetadata<E>>();
 
-  addPropertyMetadata(metadata: IPropertyMetadata): void {
+  addPropertyMetadata(metadata: IPropertyMetadata<E>): void {
     this.properties.push(metadata);
   }
 
-  getPropertyMetadataByTarget(target: Type<unknown>): IPropertyMetadata[] {
+  getPropertyMetadataByTarget(target: E): IPropertyMetadata<E>[] {
     return this.properties.filter((property) => property.target === target);
   }
 }
 
 const globalRef = global as any;
-export const FactoryMetadataStorage: FactoryMetadataStorageHost =
+export const FactoryMetadataStorage: FactoryMetadataStorageHost<unknown> =
   globalRef.FactoryMetadataStorage ||
   (globalRef.FactoryMetadataStorage = new FactoryMetadataStorageHost());

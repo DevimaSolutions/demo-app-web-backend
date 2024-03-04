@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { Type } from '@nestjs/common';
 
 import {
   IFactoryValue,
@@ -9,7 +8,7 @@ import {
 } from '@/features/seeder';
 
 export class DataFactory {
-  static createForClass(target: Type<unknown>): IFactory {
+  static createForClass<E>(target: E): IFactory {
     if (!target) {
       throw new Error(
         `Target class "${target}" passed in to the "TemplateFactory#createForClass()" method is "undefined".`,
@@ -32,8 +31,8 @@ export class DataFactory {
     };
   }
 
-  private static generate(
-    properties: IPropertyMetadata[],
+  private static generate<E>(
+    properties: IPropertyMetadata<E>[],
     values: Record<string, any>,
   ): Record<string, IFactoryValue> {
     const ctx = { ...values };

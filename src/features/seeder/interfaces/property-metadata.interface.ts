@@ -1,8 +1,8 @@
-import { IFactoryValue, IFactoryValueGenerator } from '@/features/seeder';
+import { EntitySchema, ObjectType } from 'typeorm';
 
-export interface IPropertyMetadata {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  target: Function;
+import { IFactoryValue, IFactoryValueGenerator } from '@/features/seeder';
+export interface IPropertyMetadata<E> {
+  target: ObjectType<E> | EntitySchema<E>;
   propertyKey: string;
   arg: IFactoryValueGenerator | IFactoryValue;
 }

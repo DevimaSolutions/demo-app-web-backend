@@ -1,6 +1,5 @@
 export * from './interfaces';
 export * from './decorators';
-export * from './interfaces';
 export * from './storages';
 export * from './factory';
 
