@@ -38,9 +38,8 @@ export class DataFactory {
     const ctx = { ...values };
     return properties.reduce(
       (r, p) => ({
-        [p.propertyKey]:
-          ctx?.[p.propertyKey] ??
-          (typeof p.arg === 'function' ? p.arg(faker, ctx[p.propertyKey]) : p.arg),
+        [p.propertyKey]: (ctx[p.propertyKey] =
+          typeof p.arg === 'function' ? p.arg(faker, ctx) : p.arg),
         ...r,
       }),
       {},

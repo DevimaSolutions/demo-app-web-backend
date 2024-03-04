@@ -45,7 +45,13 @@ export class UserCommand {
     })
     status: number,
   ) {
-    const data = await createUserSchema.validateAsync({ email, password, role, status });
+    const data = await createUserSchema.validateAsync({
+      email,
+      password,
+      role,
+      status,
+      name: { first: '', last: '' },
+    });
     await this.usersService.create(data);
   }
 }

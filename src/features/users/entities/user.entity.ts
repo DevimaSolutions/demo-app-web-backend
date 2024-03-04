@@ -1,5 +1,14 @@
 import { Exclude } from 'class-transformer';
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+import { Name } from './name.embedded';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Factory } from '@/features/seeder';
@@ -14,14 +23,29 @@ export class User extends BaseEntity {
   @PrimaryColumn({ type: 'uuid', generated: 'uuid' })
   id: string;
 
-  @Factory((faker) => faker?.internet.email().toLowerCase())
+  @Column(() => Name, { prefix: 'name' })
+  @Factory((faker) => ({ first: faker?.person.firstName(), last: faker?.person.lastName() }))
+  name: Name;
+
   @Column({ unique: true })
+  @Factory((faker, ctx) =>
+    faker?.internet
+      .email({
+        firstName: ctx?.name.first ?? faker?.person.firstName(),
+        lastName: ctx?.name.last ?? faker?.person.lastName(),
+      })
+      .toLowerCase(),
+  )
   email: string;
 
-  @Column()
+  @Column('varchar', { name: 'phone_number', nullable: true })
+  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.phone.number()]))
+  phoneNumber: string | null;
+
+  @Column('varchar', { nullable: true })
   @Exclude()
-  @Factory('')
-  password: string;
+  @Factory((_, ctx) => ctx?.password ?? null)
+  password: string | null;
 
   @Column()
   @Factory((faker) => faker?.helpers.arrayElement([0, 1]))
@@ -30,4 +54,23 @@ export class User extends BaseEntity {
   @Column({ default: UserStatus.Active })
   @Factory((faker) => faker?.helpers.arrayElement([0, 1, 2]))
   status: UserStatus;
+
+  @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })
+  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
+  public emailVerified: Date | null;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    name: 'created_at',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+  })
+  public createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+    default: () => 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
+  })
+  public updatedAt: Date;
 }
