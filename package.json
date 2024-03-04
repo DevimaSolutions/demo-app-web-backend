@@ -26,7 +26,8 @@
     "migration:generate": "sh -c 'yarn typeorm migration:generate -d ./src/config/orm.config.ts ./src/migrations/$0'",
     "migration:run": "yarn typeorm migration:run -d ./src/config/orm.config.ts",
     "migration:revert": "yarn typeorm migration:revert -d ./src/config/orm.config.ts",
-    "migration:show": "yarn typeorm migration:show -d ./src/config/orm.config.ts"
+    "migration:show": "yarn typeorm migration:show -d ./src/config/orm.config.ts",
+    "command": "npx nestjs-command"
   },
   "engines": {
     "node": ">=20.0.0 <21.0.0",
@@ -46,6 +47,7 @@
     "cls-hooked": "^4.2.2",
     "dotenv": "^16.0.3",
     "joi": "^17.9.1",
+    "nestjs-command": "^3.1.4",
     "nodemailer": "^6.8.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",

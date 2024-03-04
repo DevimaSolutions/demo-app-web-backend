@@ -2,9 +2,9 @@ import * as Joi from 'joi';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { passwordRegexp } from '@/features/common';
-import { UpdateUserRequest } from '@/features/users';
+import { CreateUserRequest } from '@/features/users';
 
-export const createUserSchema = Joi.object<UpdateUserRequest>({
+export const createUserSchema = Joi.object<CreateUserRequest>({
   email: Joi.string().trim().email().required().max(255),
   password: Joi.string().trim().pattern(passwordRegexp).required().max(255).messages({
     'string.pattern.base':

@@ -46,6 +46,13 @@ Now you can apply migrations
 $ yarn migration:run
 ```
 
+Now you can create user
+
+```bash
+$ yarn command user:create <email> <password>
+```
+
+
 ## After pulling new changes
 
 Don't forget to run

@@ -2,13 +2,14 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommandModule } from 'nestjs-command';
 
 import { loadConfig } from './config';
 
 import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
 import { MailerModule } from '@/features/mailer';
-import { UsersModule } from '@/features/users';
+import { UserCommand, UsersModule } from '@/features/users';
 
 // TODO: Add global filter to return success object
 // on empty response with status code 200
@@ -31,9 +32,11 @@ import { UsersModule } from '@/features/users';
     UsersModule,
     AuthModule,
     MailerModule,
+    CommandModule,
   ],
   controllers: [AppController],
   providers: [
+    UserCommand,
     AppService,
     {
       provide: APP_INTERCEPTOR,
