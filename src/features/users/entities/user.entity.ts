@@ -76,4 +76,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'google_id', unique: true, nullable: true, default: null })
   googleId?: string | null;
+
+  @Column({ type: 'varchar', name: 'linkedin_id', unique: true, nullable: true, default: null })
+  linkedinId?: string | null;
 }

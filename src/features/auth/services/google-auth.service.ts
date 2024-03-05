@@ -1,4 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
 
@@ -26,7 +31,7 @@ export class GoogleAuthService {
     }
 
     if (user.status !== UserStatus.Active) {
-      throw new BadRequestException();
+      throw new UnauthorizedException();
     }
 
     if (!user.googleId) {
@@ -50,10 +55,10 @@ export class GoogleAuthService {
   }
 
   async createUser(token: string) {
-    const { id, email, verified_email, given_name, family_name } = await this.getUserInfo(token);
+    const { id, email, given_name, family_name } = await this.getUserInfo(token);
 
     if (!id || !email) {
-      throw new BadRequestException();
+      throw new UnauthorizedException();
     }
 
     return this.usersRepository.save({
@@ -64,7 +69,7 @@ export class GoogleAuthService {
       },
       status: UserStatus.Active,
       role: UserRole.User,
-      emailVerified: verified_email ? new Date(Date.now()) : null,
+      emailVerified: new Date(),
       googleId: id,
     });
   }
@@ -83,7 +88,7 @@ export class GoogleAuthService {
 
       return userInfoResponse.data;
     } catch (error) {
-      throw new BadRequestException();
+      throw new ForbiddenException();
     }
   }
 }

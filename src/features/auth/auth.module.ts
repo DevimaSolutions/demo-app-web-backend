@@ -4,8 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { AuthController } from './auth.controller';
-import { AuthService, GoogleAuthService } from './services';
-import { JwtStrategy, LocalStrategy, GoogleStrategy } from './strategies';
+import { AuthService, GoogleAuthService, LinkedinAuthService } from './services';
+import { JwtStrategy, LocalStrategy, GoogleStrategy, LinkedinStrategy } from './strategies';
 
 import { UsersService, UsersRepository } from '@/features/users';
 
@@ -26,11 +26,13 @@ import { UsersService, UsersRepository } from '@/features/users';
   providers: [
     AuthService,
     GoogleAuthService,
+    LinkedinAuthService,
     UsersService,
     UsersRepository,
     JwtStrategy,
     LocalStrategy,
     GoogleStrategy,
+    LinkedinStrategy,
   ],
   exports: [AuthService],
 })

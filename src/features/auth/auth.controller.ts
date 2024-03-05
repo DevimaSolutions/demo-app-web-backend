@@ -2,8 +2,8 @@ import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
 
 import { Authorized } from './decorators';
-import { GoogleAuthRequest, RefreshTokenDto, SignInDto } from './dto';
-import { GoogleAuthGuard, LocalAuthGuard } from './guards';
+import { GoogleAuthRequest, LinkedinAuthRequest, RefreshTokenDto, SignInDto } from './dto';
+import { GoogleAuthGuard, LocalAuthGuard, LinkedinAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
@@ -25,6 +25,13 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiBody({ type: GoogleAuthRequest })
   async google(@Req() req: IRequestWithUser) {
+    return this.authService.createJwtTokenPair(req.user);
+  }
+
+  @Post('linkedin')
+  @UseGuards(LinkedinAuthGuard)
+  @ApiBody({ type: LinkedinAuthRequest })
+  async linkedin(@Req() req: IRequestWithUser) {
     return this.authService.createJwtTokenPair(req.user);
   }
 
