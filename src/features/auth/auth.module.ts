@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService, GoogleAuthService, LinkedinAuthService } from './services';
 import { JwtStrategy, LocalStrategy, GoogleStrategy, LinkedinStrategy } from './strategies';
 
+import { MailerModule } from '@/features/mailer';
 import { UsersService, UsersRepository } from '@/features/users';
 
 @Module({
@@ -21,6 +22,7 @@ import { UsersService, UsersRepository } from '@/features/users';
       }),
       inject: [ConfigService],
     }),
+    MailerModule,
   ],
   controllers: [AuthController],
   providers: [

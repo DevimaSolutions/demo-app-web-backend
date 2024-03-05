@@ -1,7 +1,7 @@
 import { EmailTemplate } from '@/features/mailer/enums';
 
 export interface IResetPasswordEmailParams {
-  email: string;
+  name: string;
   resetLink: string;
 }
 

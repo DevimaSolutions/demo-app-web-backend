@@ -1,13 +1,22 @@
-import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
+import { Controller, Post, UseGuards, Req, Body, Get, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
 
 import { Authorized } from './decorators';
-import { GoogleAuthRequest, LinkedinAuthRequest, RefreshTokenDto, SignInDto } from './dto';
+import {
+  ForgotPasswordRequest,
+  GoogleAuthRequest,
+  LinkedinAuthRequest,
+  RefreshTokenDto,
+  ResetPasswordRequest,
+  SignInDto,
+} from './dto';
 import { GoogleAuthGuard, LocalAuthGuard, LinkedinAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
+import { forgotPasswordSchema, resetPasswordSchema } from '@/features/auth/validations';
 import { UserResponse } from '@/features/users';
+import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,6 +42,22 @@ export class AuthController {
   @ApiBody({ type: LinkedinAuthRequest })
   async linkedin(@Req() req: IRequestWithUser) {
     return this.authService.createJwtTokenPair(req.user);
+  }
+
+  @Post('password/forgot')
+  @ApiOperation({ description: 'Forgot password request' })
+  async forgotPassword(
+    @Body(new JoiValidationPipe(forgotPasswordSchema)) { email }: ForgotPasswordRequest,
+  ) {
+    return this.authService.sendForgotPasswordEmail(email);
+  }
+
+  @Put('password/reset')
+  @ApiOperation({ description: 'Reset password request' })
+  async resetPassword(
+    @Body(new JoiValidationPipe(resetPasswordSchema)) { token, password }: ResetPasswordRequest,
+  ) {
+    return this.authService.resetPassword(token, password);
   }
 
   @ApiOperation({

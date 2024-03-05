@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Not } from 'typeorm';
 
@@ -37,16 +37,6 @@ export class UsersService {
     const entity = await this.usersRepository.getOne(id);
 
     return new UserResponse(entity);
-  }
-
-  async findByEmail(email: string) {
-    const entity = await this.usersRepository.findOneBy({ email });
-
-    if (!entity) {
-      throw new NotFoundException();
-    }
-
-    return entity;
   }
 
   async doesUserExist(email: string) {

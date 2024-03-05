@@ -11,9 +11,8 @@ import { MailerService } from './mailer.service';
 export class MailhogService extends MailerService {
   private transporter: Transporter<SMTPTransport.SentMessageInfo>;
 
-  constructor(private readonly config: ConfigService) {
-    super();
-
+  constructor(protected readonly config: ConfigService) {
+    super(config);
     this.transporter = createTransport(this.config.get(`mailer.mailhug`));
   }
 

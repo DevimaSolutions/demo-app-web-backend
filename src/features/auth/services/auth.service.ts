@@ -2,23 +2,27 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { TokenExpiredError } from 'jsonwebtoken';
 
 import { JwtTokens } from '../dto';
 import { IJwtPayload } from '../interfaces';
 
-import { User, UserResponse, UsersService } from '@/features/users';
+import { UserStatus } from '@/features/auth';
+import { MailerService } from '@/features/mailer';
+import { User, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersRepository: UsersRepository,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
     private readonly config: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
     try {
-      const user = await this.usersService.findByEmail(email);
+      const user = await this.usersRepository.getByEmail(email);
 
       if (!user.password) {
         return null;
@@ -40,7 +44,7 @@ export class AuthService {
 
   async validateUserPayload(payload: IJwtPayload): Promise<User | UserResponse | null> {
     try {
-      return await this.usersService.findOne(payload.sub);
+      return await this.usersRepository.getOne(payload.sub);
     } catch (e) {
       if (e instanceof NotFoundException) {
         // User was not found
@@ -70,10 +74,38 @@ export class AuthService {
       const result: Pick<IJwtPayload, 'sub'> = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.config.get<string>('jwt.refreshSecret'),
       });
-      const user = await this.usersService.findOne(result.sub);
+      const user = await this.usersRepository.getOne(result.sub);
       return this.createJwtTokenPair(user);
     } catch {
       throw new BadRequestException();
+    }
+  }
+
+  async sendForgotPasswordEmail(email: string) {
+    try {
+      const user = await this.usersRepository.getOneBy({ email, status: UserStatus.Active });
+
+      const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
+        expiresIn: this.config.get<string>('jwt.passwordResetDuration'),
+      });
+
+      await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        // User was not found
+        return null;
+      }
+      throw e;
+    }
+  }
+
+  async resetPassword(token: string, password: string) {
+    try {
+      const { sub } = await this.jwtService.verifyAsync(token);
+      const hash = await bcrypt.hash(password, bcrypt.genSaltSync());
+      await this.usersRepository.update(sub, { password: hash });
+    } catch (e) {
+      throw new BadRequestException(e instanceof TokenExpiredError ? 'token expired' : undefined);
     }
   }
 }

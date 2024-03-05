@@ -6,4 +6,5 @@ export default registerAs('jwt', () => ({
   duration: env.string('AUTH_TOKEN_EXPIRATION', '1d'),
   refreshSecret: env.string('JWT_REFRESH_SECRET', 'REFRESH_SECRET'),
   refreshDuration: env.string('REFRESH_TOKEN_EXPIRATION', '30d'),
+  passwordResetDuration: env.string('PASSWORD_RESET_TOKEN_EXPIRATION', '1d'),
 }));
