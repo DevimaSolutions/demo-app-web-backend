@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards, Req, Body, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
 
 import { Authorized } from './decorators';
-import { RefreshTokenDto, SignInDto } from './dto';
-import { LocalAuthGuard } from './guards';
+import { GoogleAuthRequest, RefreshTokenDto, SignInDto } from './dto';
+import { GoogleAuthGuard, LocalAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
@@ -12,15 +12,20 @@ import { UserResponse } from '@/features/users';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
-  // _signInDto parameter is declared here to allow Swagger plugin
-  // parse endpoint body signature
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async signIn(@Req() req: IRequestWithUser, @Body() _signInDto: SignInDto) {
+  @ApiBody({ type: SignInDto })
+  async signIn(@Req() req: IRequestWithUser) {
     return this.authService.signIn(req.user);
+  }
+
+  @Post('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiBody({ type: GoogleAuthRequest })
+  async google(@Req() req: IRequestWithUser) {
+    return this.authService.createJwtTokenPair(req.user);
   }
 
   @ApiOperation({

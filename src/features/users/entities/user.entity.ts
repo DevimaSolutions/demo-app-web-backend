@@ -73,4 +73,7 @@ export class User extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   public updatedAt: Date;
+
+  @Column({ type: 'varchar', name: 'google_id', unique: true, nullable: true, default: null })
+  googleId?: string | null;
 }
