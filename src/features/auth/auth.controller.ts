@@ -15,6 +15,7 @@ import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
 import { forgotPasswordSchema, resetPasswordSchema } from '@/features/auth/validations';
+import { MessageResponse } from '@/features/common';
 import { UserResponse } from '@/features/users';
 import { JoiValidationPipe } from '@/pipes';
 
@@ -48,7 +49,7 @@ export class AuthController {
   @ApiOperation({ description: 'Forgot password request' })
   async forgotPassword(
     @Body(new JoiValidationPipe(forgotPasswordSchema)) { email }: ForgotPasswordRequest,
-  ) {
+  ): Promise<MessageResponse> {
     return this.authService.sendForgotPasswordEmail(email);
   }
 
@@ -56,7 +57,7 @@ export class AuthController {
   @ApiOperation({ description: 'Reset password request' })
   async resetPassword(
     @Body(new JoiValidationPipe(resetPasswordSchema)) { token, password }: ResetPasswordRequest,
-  ) {
+  ): Promise<MessageResponse> {
     return this.authService.resetPassword(token, password);
   }
 

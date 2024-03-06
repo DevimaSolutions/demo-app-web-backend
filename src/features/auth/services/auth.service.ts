@@ -8,6 +8,7 @@ import { JwtTokens } from '../dto';
 import { IJwtPayload } from '../interfaces';
 
 import { UserStatus } from '@/features/auth';
+import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
 import { User, UserResponse, UsersRepository } from '@/features/users';
 
@@ -83,19 +84,17 @@ export class AuthService {
 
   async sendForgotPasswordEmail(email: string) {
     try {
-      const user = await this.usersRepository.getOneBy({ email, status: UserStatus.Active });
+      const user = await this.usersRepository.findOneBy({ email, status: UserStatus.Active });
+      if (user) {
+        const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
+          expiresIn: this.config.get<string>('jwt.passwordResetDuration'),
+        });
 
-      const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
-        expiresIn: this.config.get<string>('jwt.passwordResetDuration'),
-      });
-
-      await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
-    } catch (e) {
-      if (e instanceof NotFoundException) {
-        // User was not found
-        return null;
+        await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
       }
-      throw e;
+      return { message: successMessages.emailSent };
+    } catch (e) {
+      throw new BadRequestException(errorMessages.mailingServiceUnavailable);
     }
   }
 
@@ -104,6 +103,7 @@ export class AuthService {
       const { sub } = await this.jwtService.verifyAsync(token);
       const hash = await bcrypt.hash(password, bcrypt.genSaltSync());
       await this.usersRepository.update(sub, { password: hash });
+      return { message: successMessages.passwordChanged };
     } catch (e) {
       throw new BadRequestException(e instanceof TokenExpiredError ? 'token expired' : undefined);
     }
