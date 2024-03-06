@@ -21,10 +21,10 @@ export class UserResponse {
   @ApiProperty()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserRole })
   role: UserRole;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserStatus })
   status: UserStatus;
 
   @ApiProperty()

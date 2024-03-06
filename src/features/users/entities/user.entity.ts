@@ -33,6 +33,7 @@ export class User extends BaseEntity {
       .email({
         firstName: ctx?.name.first ?? faker?.person.firstName(),
         lastName: ctx?.name.last ?? faker?.person.lastName(),
+        provider: 'shaper.us',
       })
       .toLowerCase(),
   )
@@ -47,12 +48,12 @@ export class User extends BaseEntity {
   @Factory((_, ctx) => ctx?.password ?? null)
   password: string | null;
 
-  @Column()
-  @Factory((faker) => faker?.helpers.arrayElement([0, 1]))
+  @Column({ default: UserRole.User })
+  @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserRole)))
   role: UserRole;
 
   @Column({ default: UserStatus.Active })
-  @Factory((faker) => faker?.helpers.arrayElement([0, 1, 2]))
+  @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserStatus)))
   status: UserStatus;
 
   @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })

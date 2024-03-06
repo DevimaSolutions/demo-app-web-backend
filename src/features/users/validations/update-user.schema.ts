@@ -16,10 +16,10 @@ export const updateUserSchema = Joi.object<UpdateUserRequest>({
     'string.pattern.base':
       'The password must be a string of 8-64 symbols. Must contain a combination of lowercase letters, uppercase letters, and numbers.',
   }),
-  role: Joi.number()
+  role: Joi.string()
     .valid(...Object.values(UserRole))
     .optional(),
-  status: Joi.number()
+  status: Joi.string()
     .valid(...Object.values(UserStatus))
     .optional(),
 });

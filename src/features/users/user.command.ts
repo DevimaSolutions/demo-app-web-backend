@@ -3,6 +3,7 @@ import { Command, Positional, Option } from 'nestjs-command';
 
 import { UsersService } from './users.service';
 
+import { UserRole, UserStatus } from '@/features/auth';
 import { createUserSchema } from '@/features/users/validations';
 
 @Injectable()
@@ -28,22 +29,22 @@ export class UserCommand {
     password: string,
     @Option({
       name: 'role',
-      describe: 'user role (ex: 0 = "User", 1 = "Admin") default 0',
-      type: 'number',
+      describe: `user role (ex: ${Object.values(UserRole)}) default ${UserRole.User}`,
+      type: 'string',
       alias: 'r',
-      default: 0,
+      default: UserRole.User,
       required: false,
     })
-    role: number,
+    role: UserRole,
     @Option({
       name: 'status',
-      describe: 'user status (ex: 0 = "Pending", 1 = "Active", 2 = "Blocked") default 1',
-      type: 'number',
+      describe: `user status (ex: ${Object.values(UserStatus)}) default ${UserStatus.Active}`,
+      type: 'string',
       alias: 's',
-      default: 1,
+      default: UserStatus.Active,
       required: false,
     })
-    status: number,
+    status: UserStatus,
   ) {
     const data = await createUserSchema.validateAsync({
       email,

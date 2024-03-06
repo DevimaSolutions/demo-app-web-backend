@@ -17,9 +17,9 @@ export class CreateUserRequest {
   @ApiProperty()
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserRole })
   role: UserRole;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserStatus })
   status?: UserStatus;
 }
