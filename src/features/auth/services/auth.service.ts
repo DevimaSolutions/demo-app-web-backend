@@ -2,11 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { TokenExpiredError } from 'jsonwebtoken';
+import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
-import { JwtTokens } from '../dto';
+import { JwtTokens, SignUpRequest } from '../dto';
 import { IJwtPayload } from '../interfaces';
 
+import { ValidationFieldsException } from '@/exceptions';
 import { UserStatus } from '@/features/auth';
 import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
@@ -70,6 +71,55 @@ export class AuthService {
     return this.createJwtTokenPair(user);
   }
 
+  async signUp({ email, password }: SignUpRequest) {
+    const user = await this.usersRepository.findOneBy({ email });
+
+    if (user) {
+      throw new ValidationFieldsException({ email: 'user with the same email already exist' });
+    }
+
+    const entity = this.usersRepository.create({ email });
+    entity.password = await bcrypt.hash(password, bcrypt.genSaltSync());
+
+    await this.usersRepository.save(entity);
+
+    await this.sendVerifyEmail(entity);
+
+    return this.createJwtTokenPair(entity);
+  }
+
+  async sendVerifyEmail(user: User) {
+    if (!user.emailVerified) {
+      const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
+        expiresIn: this.config.get('jwt.emailDuration'),
+      });
+
+      await this.mailerService.verifyMail(user.email, token, user?.name.full ?? user.email);
+      return { message: successMessages.emailSent };
+    }
+
+    return { message: successMessages.emailIsVerified };
+  }
+
+  async verifyEmail(token: string) {
+    try {
+      const { sub } = await this.jwtService.verifyAsync(token);
+      const user = await this.usersRepository.getOneBy({ id: sub });
+      await this.usersRepository.update(user.id, { emailVerified: new Date() });
+
+      return { message: successMessages.emailIsVerified };
+    } catch (e) {
+      const message: string | undefined =
+        e instanceof TokenExpiredError ||
+        e instanceof JsonWebTokenError ||
+        e instanceof NotFoundException
+          ? errorMessages.linkCannotIdentified
+          : undefined;
+
+      throw new BadRequestException(message);
+    }
+  }
+
   async refreshAccessToken(refreshToken: string) {
     try {
       const result: Pick<IJwtPayload, 'sub'> = await this.jwtService.verifyAsync(refreshToken, {
@@ -87,7 +137,7 @@ export class AuthService {
       const user = await this.usersRepository.findOneBy({ email, status: UserStatus.Active });
       if (user) {
         const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
-          expiresIn: this.config.get<string>('jwt.passwordResetDuration'),
+          expiresIn: this.config.get('jwt.emailDuration'),
         });
 
         await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
@@ -105,7 +155,12 @@ export class AuthService {
       await this.usersRepository.update(sub, { password: hash });
       return { message: successMessages.passwordChanged };
     } catch (e) {
-      throw new BadRequestException(e instanceof TokenExpiredError ? 'token expired' : undefined);
+      const message: string | undefined =
+        e instanceof TokenExpiredError || e instanceof JsonWebTokenError
+          ? errorMessages.linkCannotIdentified
+          : undefined;
+
+      throw new BadRequestException(message);
     }
   }
 }

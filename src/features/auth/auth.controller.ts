@@ -8,13 +8,20 @@ import {
   LinkedinAuthRequest,
   RefreshTokenDto,
   ResetPasswordRequest,
-  SignInDto,
+  SignInRequest,
+  SignUpRequest,
+  ConfirmEmailRequest,
 } from './dto';
 import { GoogleAuthGuard, LocalAuthGuard, LinkedinAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
-import { forgotPasswordSchema, resetPasswordSchema } from '@/features/auth/validations';
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  signupSchema,
+  confirmEmailSchema,
+} from '@/features/auth/validations';
 import { MessageResponse } from '@/features/common';
 import { UserResponse } from '@/features/users';
 import { JoiValidationPipe } from '@/pipes';
@@ -26,9 +33,26 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
-  @ApiBody({ type: SignInDto })
+  @ApiBody({ type: SignInRequest })
   async signIn(@Req() req: IRequestWithUser) {
     return this.authService.signIn(req.user);
+  }
+
+  @Post('sign-up')
+  async signUp(@Body(new JoiValidationPipe(signupSchema)) request: SignUpRequest) {
+    return this.authService.signUp(request);
+  }
+  @Post('confirm/email')
+  async confirmEmail(
+    @Body(new JoiValidationPipe(confirmEmailSchema)) { token }: ConfirmEmailRequest,
+  ): Promise<MessageResponse> {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Authorized()
+  @Post('confirm/email/resend')
+  async resendConfirmEmail(@Req() req: IRequestWithUser): Promise<MessageResponse> {
+    return this.authService.sendVerifyEmail(req.user);
   }
 
   @Post('google')
