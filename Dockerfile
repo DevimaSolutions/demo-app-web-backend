@@ -32,7 +32,7 @@ WORKDIR /src/app
 
 ENV NODE_ENV production
 
-COPY --chown=node:node --from=build package*.json yarn.lock ./
+COPY --chown=node:node package*.json yarn.lock ./
 
 RUN yarn install --production
 
