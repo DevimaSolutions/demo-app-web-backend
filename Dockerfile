@@ -38,7 +38,7 @@ RUN yarn install --production
 
 COPY --chown=node:node --from=build /src/app/dist ./dist
 
-EXPOSE 80
+EXPOSE 8080
 
 # Start the server
 CMD [ "yarn", "start:prod" ]
