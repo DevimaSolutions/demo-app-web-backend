@@ -16,7 +16,6 @@ export default registerAs("database", () => ({
   password: env.string("DATABASE_PASSWORD"),
   database: env.string("DATABASE_DATABASE"),
   type: env.string<DatabaseType>("DATABASE_DIALECT", "postgres"),
-  migrationsRun: env.string("NODE_ENV") === "production",
   logging: false,
   ...(env.string("NODE_ENV") === "production" ? productionConfigOverrides : {}),
 }));
