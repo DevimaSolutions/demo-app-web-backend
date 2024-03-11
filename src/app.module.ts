@@ -24,7 +24,6 @@ import { UsersModule } from '@/features/users';
       useFactory: (config: ConfigService) => ({
         autoLoadEntities: true,
         synchronize: false,
-        migrationsRun: true,
         ...config.get('database'),
       }),
       inject: [ConfigService],
