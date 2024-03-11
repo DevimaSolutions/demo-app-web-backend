@@ -5,8 +5,28 @@ import { User } from '@/features/users';
 import { Name } from '@/features/users/entities/name.embedded';
 
 export class UserResponse {
-  constructor({ id, name, email, role, status, phoneNumber, createdAt, updatedAt }: User) {
-    Object.assign(this, { id, name, email, role, phoneNumber, status, createdAt, updatedAt });
+  constructor({
+    id,
+    name,
+    email,
+    role,
+    status,
+    phoneNumber,
+    createdAt,
+    updatedAt,
+    emailVerified,
+  }: User) {
+    Object.assign(this, {
+      id,
+      name,
+      email,
+      role,
+      phoneNumber,
+      status,
+      createdAt,
+      updatedAt,
+      isEmailVerified: !!emailVerified,
+    });
   }
 
   @ApiProperty()
@@ -32,4 +52,7 @@ export class UserResponse {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
+  isEmailVerified: boolean;
 }

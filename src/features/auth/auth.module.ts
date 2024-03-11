@@ -8,6 +8,7 @@ import { AuthService, GoogleAuthService, LinkedinAuthService } from './services'
 import { JwtStrategy, LocalStrategy, GoogleStrategy, LinkedinStrategy } from './strategies';
 
 import { MailerModule } from '@/features/mailer';
+import { PersonalTokenRepository, PersonalTokenService } from '@/features/personal-token';
 import { UsersService, UsersRepository } from '@/features/users';
 
 @Module({
@@ -29,12 +30,14 @@ import { UsersService, UsersRepository } from '@/features/users';
     AuthService,
     GoogleAuthService,
     LinkedinAuthService,
+    PersonalTokenService,
     UsersService,
     UsersRepository,
     JwtStrategy,
     LocalStrategy,
     GoogleStrategy,
     LinkedinStrategy,
+    PersonalTokenRepository,
   ],
   exports: [AuthService],
 })

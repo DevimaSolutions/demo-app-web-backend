@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 import { JwtTokens, SignUpRequest } from '../dto';
 import { IJwtPayload } from '../interfaces';
@@ -11,6 +11,8 @@ import { ValidationFieldsException } from '@/exceptions';
 import { UserStatus } from '@/features/auth';
 import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
+import { PersonalTokenService } from '@/features/personal-token';
+import { TokenScope } from '@/features/personal-token/enums';
 import { User, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
@@ -20,6 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
     private readonly config: ConfigService,
+    private readonly personalTokenService: PersonalTokenService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -90,11 +93,14 @@ export class AuthService {
 
   async sendVerifyEmail(user: User) {
     if (!user.emailVerified) {
-      const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
-        expiresIn: this.config.get('jwt.emailDuration'),
-      });
+      const { canSend, token } = await this.personalTokenService.createToken(user, [
+        TokenScope.VerifyEmail,
+      ]);
 
-      await this.mailerService.verifyMail(user.email, token, user?.name.full ?? user.email);
+      if (canSend) {
+        await this.mailerService.verifyMail(user.email, token, user?.name.full ?? user.email);
+      }
+
       return { message: successMessages.emailSent };
     }
 
@@ -106,6 +112,7 @@ export class AuthService {
       const { sub } = await this.jwtService.verifyAsync(token);
       const user = await this.usersRepository.getOneBy({ id: sub });
       await this.usersRepository.update(user.id, { emailVerified: new Date() });
+      await this.personalTokenService.revokeUserToken(user.id);
 
       return { message: successMessages.emailIsVerified };
     } catch (e) {
@@ -136,11 +143,13 @@ export class AuthService {
     try {
       const user = await this.usersRepository.findOneBy({ email, status: UserStatus.Active });
       if (user) {
-        const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
-          expiresIn: this.config.get('jwt.emailDuration'),
-        });
+        const { canSend, token } = await this.personalTokenService.createToken(user, [
+          TokenScope.ForgotPassword,
+        ]);
 
-        await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
+        if (canSend) {
+          await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
+        }
       }
       return { message: successMessages.emailSent };
     } catch (e) {
@@ -153,6 +162,7 @@ export class AuthService {
       const { sub } = await this.jwtService.verifyAsync(token);
       const hash = await bcrypt.hash(password, bcrypt.genSaltSync());
       await this.usersRepository.update(sub, { password: hash });
+      await this.personalTokenService.revokeUserToken(sub);
       return { message: successMessages.passwordChanged };
     } catch (e) {
       const message: string | undefined =
