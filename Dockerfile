@@ -18,7 +18,6 @@ RUN yarn install
 COPY --chown=node:node . .
 
 RUN yarn build
-RUN yarn migration:run
 
 USER node
 
