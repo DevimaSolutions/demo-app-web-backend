@@ -5,7 +5,7 @@ export interface IResetPasswordEmailParams {
   resetLink: string;
 }
 
-export interface IVerifyMailParams {
+export interface IVerifyEmailParams {
   name: string;
   link: string;
 }
@@ -13,6 +13,6 @@ export interface IVerifyMailParams {
 export type EmailParams<EmailType extends EmailTemplate> =
   EmailType extends EmailTemplate.ForgotPassword
     ? IResetPasswordEmailParams
-    : EmailType extends EmailTemplate.VerifyMail
-    ? IVerifyMailParams
+    : EmailType extends EmailTemplate.VerifyEmail
+    ? IVerifyEmailParams
     : never;

@@ -78,7 +78,7 @@ export class AuthService {
     const user = await this.usersRepository.findOneBy({ email });
 
     if (user) {
-      throw new ValidationFieldsException({ email: 'user with the same email already exist' });
+      throw new ValidationFieldsException({ email: errorMessages.userExists });
     }
 
     const entity = this.usersRepository.create({ email });
@@ -120,7 +120,7 @@ export class AuthService {
         e instanceof TokenExpiredError ||
         e instanceof JsonWebTokenError ||
         e instanceof NotFoundException
-          ? errorMessages.linkCannotIdentified
+          ? errorMessages.unexpectedToken
           : undefined;
 
       throw new BadRequestException(message);
@@ -167,7 +167,7 @@ export class AuthService {
     } catch (e) {
       const message: string | undefined =
         e instanceof TokenExpiredError || e instanceof JsonWebTokenError
-          ? errorMessages.linkCannotIdentified
+          ? errorMessages.unexpectedToken
           : undefined;
 
       throw new BadRequestException(message);

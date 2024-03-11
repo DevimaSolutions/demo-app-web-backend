@@ -17,7 +17,7 @@ export abstract class MailerService {
 
   static getTemplateTitle: Record<EmailTemplate, string> = {
     [EmailTemplate.ForgotPassword]: 'Reset password',
-    [EmailTemplate.VerifyMail]: 'Email Confirmation',
+    [EmailTemplate.VerifyEmail]: 'Email Confirmation',
   };
 
   async sendForgotPasswordEmail(recipient: string | string[], token: string, name: string) {
@@ -28,7 +28,7 @@ export abstract class MailerService {
   }
 
   async verifyMail(recipient: string | string[], token: string, name: string) {
-    await this.send(recipient, EmailTemplate.VerifyMail, {
+    await this.send(recipient, EmailTemplate.VerifyEmail, {
       name,
       link: `${this.config.get('app.frontendHostUrl')}/email-verify?${stringify({ token })}`,
     });

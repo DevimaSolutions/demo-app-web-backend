@@ -1,4 +1,4 @@
 export enum TokenScope {
-  VerifyEmail = 'verify-email',
-  ForgotPassword = 'forgot-password',
+  VerifyEmail = 'verifyEmail',
+  ForgotPassword = 'forgotPassword',
 }

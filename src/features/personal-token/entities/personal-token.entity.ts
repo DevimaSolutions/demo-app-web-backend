@@ -12,7 +12,7 @@ import {
 import { TokenScope } from '@/features/personal-token/enums';
 import { User } from '@/features/users/entities';
 
-@Entity({ name: 'user-personal-tokens' })
+@Entity({ name: 'user_personal_tokens' })
 export class PersonalToken extends BaseEntity {
   constructor(partial: Partial<PersonalToken>) {
     super();

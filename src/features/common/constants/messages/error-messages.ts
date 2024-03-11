@@ -1,6 +1,7 @@
 const errorMessages = {
   mailingServiceUnavailable: 'Mailing Service Unavailable.',
-  linkCannotIdentified: 'Sorry your link cannot be identified.',
+  unexpectedToken: 'Unexpected token.',
+  userExists: 'The user already exist.',
 };
 
 export default errorMessages;
