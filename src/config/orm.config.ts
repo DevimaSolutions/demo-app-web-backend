@@ -1,9 +1,9 @@
-import "reflect-metadata";
-import { config as configDotenv } from "dotenv";
-import { DataSource } from "typeorm";
-import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
+import 'reflect-metadata';
+import { config as configDotenv } from 'dotenv';
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-import databaseConfig from "./database.config";
+import databaseConfig from './database.config';
 
 configDotenv();
 const database = databaseConfig();
@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   ...database,
   synchronize: false,
   logging: true,
-  entities: ["src/**/*.entity.ts"],
-  migrations: ["src/migrations/**/*.ts"],
+  entities: ['src/**/*.entity.ts'],
+  migrations: ['src/migrations/**/*.ts'],
   subscribers: [],
 } as PostgresConnectionOptions);

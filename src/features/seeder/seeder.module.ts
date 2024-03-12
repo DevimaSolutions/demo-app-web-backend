@@ -3,11 +3,11 @@ import { Repository } from 'typeorm';
 
 import { SeederService } from './seeder.service';
 
-import { Seeder, SeederModuleOptions } from '@/features/seeder/interfaces';
+import { Seeder, ISeederModuleOptions } from '@/features/seeder/interfaces';
 
 @Module({})
 export class SeederModule {
-  static forRoot(options: SeederModuleOptions): DynamicModule {
+  static forRoot(options: ISeederModuleOptions): DynamicModule {
     return {
       module: SeederModule,
       imports: options.imports || [],

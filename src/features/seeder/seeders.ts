@@ -1,5 +1,7 @@
-import { UsersSeeder } from '@/features/users';
+import { ISeederModuleOptions } from '@/features/seeder/interfaces';
+import { HasherService, UsersSeeder } from '@/features/users';
 
-export const seederConfig = {
+export const seederConfig: ISeederModuleOptions = {
+  providers: [HasherService],
   seeders: [UsersSeeder],
 };

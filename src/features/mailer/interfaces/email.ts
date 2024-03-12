@@ -7,7 +7,7 @@ export interface IResetPasswordEmailParams {
 
 export interface IVerifyEmailParams {
   name: string;
-  link: string;
+  code: string;
 }
 
 export type EmailParams<EmailType extends EmailTemplate> =

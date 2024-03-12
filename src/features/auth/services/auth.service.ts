@@ -1,28 +1,26 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import { addMilliseconds, differenceInSeconds } from 'date-fns';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import ms from 'ms';
 
 import { JwtTokens, SignUpRequest } from '../dto';
 import { IJwtPayload } from '../interfaces';
 
 import { ValidationFieldsException } from '@/exceptions';
-import { UserStatus } from '@/features/auth';
 import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
-import { PersonalTokenService } from '@/features/personal-token';
-import { TokenScope } from '@/features/personal-token/enums';
-import { User, UserResponse, UsersRepository } from '@/features/users';
+import { HasherService, User, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
+    private readonly hasher: HasherService,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
     private readonly config: ConfigService,
-    private readonly personalTokenService: PersonalTokenService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -33,7 +31,7 @@ export class AuthService {
         return null;
       }
 
-      const doPasswordsMatch = await bcrypt.compare(password, user.password);
+      const doPasswordsMatch = await this.hasher.compare(password, user.password);
       if (doPasswordsMatch) {
         return user;
       }
@@ -82,7 +80,7 @@ export class AuthService {
     }
 
     const entity = this.usersRepository.create({ email });
-    entity.password = await bcrypt.hash(password, bcrypt.genSaltSync());
+    entity.password = await this.hasher.hash(password);
 
     await this.usersRepository.save(entity);
 
@@ -93,12 +91,27 @@ export class AuthService {
 
   async sendVerifyEmail(user: User) {
     if (!user.emailVerified) {
-      const { canSend, token } = await this.personalTokenService.createToken(user, [
-        TokenScope.VerifyEmail,
-      ]);
+      const allowSubmit = user.verifyCodeSubmittedAt
+        ? differenceInSeconds(new Date(), user.verifyCodeSubmittedAt) >= 60
+        : true;
 
-      if (canSend) {
-        await this.mailerService.verifyMail(user.email, token, user?.name.full ?? user.email);
+      if (allowSubmit) {
+        const verifyEmailCode = this.hasher.generateValidationCode();
+
+        await this.usersRepository.update(user.id, {
+          verifyEmailCode,
+          verifyCodeExpireAt: addMilliseconds(
+            new Date(),
+            ms(this.config.get<string>('jwt.emailDuration', '1h')),
+          ),
+          verifyCodeSubmittedAt: new Date(),
+        });
+
+        await this.mailerService.verifyMail(
+          user.email,
+          verifyEmailCode,
+          user?.name.full ?? user.email,
+        );
       }
 
       return { message: successMessages.emailSent };
@@ -107,12 +120,11 @@ export class AuthService {
     return { message: successMessages.emailIsVerified };
   }
 
-  async verifyEmail(token: string) {
+  async verifyEmail(id: string, code: string) {
     try {
-      const { sub } = await this.jwtService.verifyAsync(token);
-      const user = await this.usersRepository.getOneBy({ id: sub });
-      await this.usersRepository.update(user.id, { emailVerified: new Date() });
-      await this.personalTokenService.revokeUserToken(user.id);
+      const user = await this.usersRepository.getUserByEmailVerificationCode(id, code);
+
+      await this.usersRepository.verifyEmail(user.id);
 
       return { message: successMessages.emailIsVerified };
     } catch (e) {
@@ -120,7 +132,7 @@ export class AuthService {
         e instanceof TokenExpiredError ||
         e instanceof JsonWebTokenError ||
         e instanceof NotFoundException
-          ? errorMessages.unexpectedToken
+          ? errorMessages.unexpectedCode
           : undefined;
 
       throw new BadRequestException(message);
@@ -141,13 +153,18 @@ export class AuthService {
 
   async sendForgotPasswordEmail(email: string) {
     try {
-      const user = await this.usersRepository.findOneBy({ email, status: UserStatus.Active });
+      const user = await this.usersRepository.findActiveUserByEmail(email);
       if (user) {
-        const { canSend, token } = await this.personalTokenService.createToken(user, [
-          TokenScope.ForgotPassword,
-        ]);
+        const allowSubmit = user.resetPasswordSubmittedAt
+          ? differenceInSeconds(new Date(), user.resetPasswordSubmittedAt) >= 60
+          : true;
 
-        if (canSend) {
+        if (allowSubmit) {
+          const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
+            expiresIn: this.config.get('jwt.emailDuration'),
+          });
+          await this.usersRepository.update(user.id, { resetPasswordSubmittedAt: new Date() });
+
           await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
         }
       }
@@ -160,9 +177,8 @@ export class AuthService {
   async resetPassword(token: string, password: string) {
     try {
       const { sub } = await this.jwtService.verifyAsync(token);
-      const hash = await bcrypt.hash(password, bcrypt.genSaltSync());
-      await this.usersRepository.update(sub, { password: hash });
-      await this.personalTokenService.revokeUserToken(sub);
+      const hash = await this.hasher.hash(password);
+      await this.usersRepository.update(sub, { password: hash, resetPasswordSubmittedAt: null });
       return { message: successMessages.passwordChanged };
     } catch (e) {
       const message: string | undefined =

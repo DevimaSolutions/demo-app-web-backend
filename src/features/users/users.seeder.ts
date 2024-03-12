@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { DataSource, In, Repository } from 'typeorm';
 
 import { Seeder } from '@/features/seeder';
 import { DataFactory } from '@/features/seeder';
 import { User } from '@/features/users/entities';
+import { HasherService } from '@/features/users/services';
 
 @Injectable()
 export class UsersSeeder implements Seeder {
   private readonly repository: Repository<User>;
-  constructor(protected readonly connection: DataSource) {
+  constructor(protected readonly connection: DataSource, private readonly hasher: HasherService) {
     this.repository = connection.getRepository(User);
   }
   async seed(): Promise<any> {
     const users = DataFactory.createForClass(User).generate(20, {
-      password: await bcrypt.hash('secret', bcrypt.genSaltSync()),
+      password: await this.hasher.hash('secret'),
     });
     await this.repository.save(users);
   }

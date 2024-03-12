@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, In, MoreThanOrEqual } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { User } from './entities/user.entity';
 
+import { UserStatus } from '@/features/auth';
 import { BaseRepository } from '@/features/common/base.repository';
 
 @Injectable()
@@ -34,5 +35,26 @@ export class UsersRepository extends BaseRepository<User> {
     }
 
     return entity;
+  }
+
+  async getUserByEmailVerificationCode(id: string, code: string) {
+    return this.getOneBy({
+      id,
+      verifyEmailCode: code,
+      verifyCodeExpireAt: MoreThanOrEqual(new Date()),
+    });
+  }
+
+  async verifyEmail(id: string) {
+    await this.update(id, {
+      emailVerified: new Date(),
+      verifyCodeSubmittedAt: null,
+      verifyEmailCode: null,
+      verifyCodeExpireAt: null,
+    });
+  }
+
+  async findActiveUserByEmail(email: string) {
+    return this.findOneBy({ email, status: In([UserStatus.Active, UserStatus.Pending]) });
   }
 }

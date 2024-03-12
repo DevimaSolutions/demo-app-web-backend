@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Command, Positional, Option } from 'nestjs-command';
 
-import { UsersService } from './users.service';
+import { UsersService } from './services/users.service';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { createUserSchema } from '@/features/users/validations';

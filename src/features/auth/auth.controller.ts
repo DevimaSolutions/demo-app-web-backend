@@ -43,10 +43,12 @@ export class AuthController {
     return this.authService.signUp(request);
   }
   @Post('confirm/email')
+  @Authorized()
   async confirmEmail(
-    @Body(new JoiValidationPipe(confirmEmailSchema)) { token }: ConfirmEmailRequest,
+    @Req() req: IRequestWithUser,
+    @Body(new JoiValidationPipe(confirmEmailSchema)) { code }: ConfirmEmailRequest,
   ): Promise<MessageResponse> {
-    return this.authService.verifyEmail(token);
+    return this.authService.verifyEmail(req.user.id, code);
   }
 
   @Authorized()

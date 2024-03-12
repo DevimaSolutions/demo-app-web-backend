@@ -30,7 +30,7 @@ export class GoogleAuthService {
       return new UserResponse(newUser);
     }
 
-    if (user.status !== UserStatus.Active) {
+    if (user.status === UserStatus.Blocked) {
       throw new UnauthorizedException();
     }
 

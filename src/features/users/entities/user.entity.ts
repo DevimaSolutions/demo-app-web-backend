@@ -60,18 +60,28 @@ export class User extends BaseEntity {
   @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
   public emailVerified: Date | null;
 
+  @Column({ type: 'varchar', name: 'verify_email_code', nullable: true, default: null })
+  public verifyEmailCode: string | null;
+
+  @Column({ type: 'timestamp', name: 'verify_code_submitted_at', nullable: true, default: null })
+  public verifyCodeSubmittedAt: Date | null;
+
+  @Column({ type: 'timestamp', name: 'verify_code_expire_at', nullable: true, default: null })
+  public verifyCodeExpireAt: Date | null;
+
+  @Column({ type: 'timestamp', name: 'reset_password_submitted_at', nullable: true, default: null })
+  public resetPasswordSubmittedAt: Date | null;
+
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',
-    default: () => 'CURRENT_TIMESTAMP(6)',
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
     name: 'updated_at',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-    onUpdate: 'CURRENT_TIMESTAMP(6)',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   public updatedAt: Date;
 

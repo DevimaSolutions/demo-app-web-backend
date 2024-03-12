@@ -38,7 +38,7 @@ export class UserResponse {
   @ApiProperty({ type: 'string', nullable: true })
   phoneNumber: string | null;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'string', format: 'email' })
   email: string;
 
   @ApiProperty({ enum: UserRole })

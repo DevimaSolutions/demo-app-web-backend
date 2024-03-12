@@ -24,6 +24,7 @@
     "setup": "yarn setup:husky && cpy --rename=.env .env.example ./",
     "typeorm": "node -r tsconfig-paths/register -r ts-node/register node_modules/.bin/typeorm",
     "migration:generate": "sh -c 'yarn typeorm migration:generate -d ./src/config/orm.config.ts ./src/migrations/$0'",
+    "migration:create": "sh -c 'yarn typeorm migration:create ./src/migrations/$0'",
     "migration:run": "yarn typeorm migration:run -d ./src/config/orm.config.ts",
     "migration:revert": "yarn typeorm migration:revert -d ./src/config/orm.config.ts",
     "migration:show": "yarn typeorm migration:show -d ./src/config/orm.config.ts",

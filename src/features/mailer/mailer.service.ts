@@ -27,10 +27,10 @@ export abstract class MailerService {
     });
   }
 
-  async verifyMail(recipient: string | string[], token: string, name: string) {
+  async verifyMail(recipient: string | string[], code: string, name: string) {
     await this.send(recipient, EmailTemplate.VerifyEmail, {
       name,
-      link: `${this.config.get('app.frontendHostUrl')}/email-verify?${stringify({ token })}`,
+      code,
     });
   }
 }

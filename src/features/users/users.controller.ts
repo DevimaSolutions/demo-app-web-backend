@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { CreateUserRequest, UpdateUserRequest } from './dto';
-import { UsersService } from './users.service';
+import { UsersService } from './services';
 
 import { Authorized, UserRole } from '@/features/auth';
 import { updateUserSchema, createUserSchema } from '@/features/users/validations';

@@ -8,7 +8,7 @@ export class CreateUserRequest {
   @ApiProperty()
   name: NameRequest;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'string', format: 'email' })
   email: string;
 
   @ApiProperty({ type: 'string', required: false, nullable: true })

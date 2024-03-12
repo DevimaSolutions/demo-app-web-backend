@@ -2,5 +2,5 @@ import * as Joi from 'joi';
 
 import { ConfirmEmailRequest } from '@/features/auth/dto';
 export const confirmEmailSchema = Joi.object<ConfirmEmailRequest>({
-  token: Joi.string().trim().required(),
+  code: Joi.string().min(4).max(4).trim().required(),
 });
