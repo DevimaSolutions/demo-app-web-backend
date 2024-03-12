@@ -13,7 +13,7 @@ export class MailhogService extends MailerService {
 
   constructor(protected readonly config: ConfigService) {
     super(config);
-    this.transporter = createTransport(this.config.get(`mailer.mailhug`));
+    this.transporter = createTransport(this.config.get(`mailer.mailhog`));
   }
 
   async send(recipient: string, templateId: EmailTemplate, params: EmailParams<EmailTemplate>) {

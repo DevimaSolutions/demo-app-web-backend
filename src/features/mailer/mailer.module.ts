@@ -5,7 +5,7 @@ import { MailerService } from './mailer.service';
 import { MailhogService } from './mailhog.service';
 
 const services = {
-  mailhug: MailhogService,
+  mailhog: MailhogService,
 };
 
 @Module({
@@ -14,7 +14,7 @@ const services = {
       provide: MailerService,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const provider = config.get<'mailhug'>('mailer.provider', 'mailhug');
+        const provider = config.get<'mailhog'>('mailer.provider', 'mailhog');
         const service = services?.[provider];
         return service ? new service(config) : null;
       },
