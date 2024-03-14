@@ -8,6 +8,7 @@ import { loadConfig } from './config';
 
 import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
+import { FilesModule } from '@/features/files';
 import { MailerModule } from '@/features/mailer';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
@@ -36,6 +37,7 @@ import { UserCommand, UsersModule } from '@/features/users';
     MailerModule,
     CommandModule,
     SeederModule.forRoot(seederConfig),
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [
