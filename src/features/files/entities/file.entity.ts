@@ -1,4 +1,12 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, Index, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'files' })
 export class FileEntity extends BaseEntity {
@@ -11,7 +19,7 @@ export class FileEntity extends BaseEntity {
   id: string;
 
   @Index()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column()
@@ -25,4 +33,11 @@ export class FileEntity extends BaseEntity {
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  public updatedAt: Date;
 }

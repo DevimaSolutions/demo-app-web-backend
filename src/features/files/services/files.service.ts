@@ -22,9 +22,4 @@ export class FilesService {
     });
     return new FileResponse(entity);
   }
-
-  async getFileContentStream(name: string) {
-    const file = await this.repository.getOneBy({ name });
-    return this.googleStorageService.getFileContentStream(file.name);
-  }
 }

@@ -10,5 +10,5 @@ export const signupSchema = Joi.object<SignUpRequest>({
   confirmPassword: Joi.string()
     .equal(Joi.ref('password'))
     .required()
-    .messages({ 'any.only': validationMessages.passwordMatch }),
+    .messages({ 'any.only': validationMessages.passwordDontMatch }),
 });
