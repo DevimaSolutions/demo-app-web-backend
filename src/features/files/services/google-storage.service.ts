@@ -10,9 +10,12 @@ export class GoogleStorageService {
   private storage: Storage;
   private bucket: Bucket;
   constructor(protected readonly config: ConfigService) {
-    const { keyFilename, bucket } = this.config.get('google');
+    const { bucket, projectId, privateKey, clientEmail } = this.config.get('google');
 
-    this.storage = new Storage({ keyFilename });
+    this.storage = new Storage({
+      projectId,
+      credentials: { client_email: clientEmail, private_key: privateKey },
+    });
 
     this.bucket = this.storage.bucket(bucket);
   }
