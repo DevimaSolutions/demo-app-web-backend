@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,6 +13,7 @@ import {
 import { Name } from './name.embedded';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
+import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
 
 @Entity({ name: 'users' })
@@ -90,4 +93,13 @@ export class User extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'linkedin_id', unique: true, nullable: true, default: null })
   linkedinId?: string | null;
+
+  @ManyToOne(() => Profile, (profile) => profile.user, {
+    eager: true,
+    nullable: true,
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'profile_id' })
+  profile: Profile;
 }

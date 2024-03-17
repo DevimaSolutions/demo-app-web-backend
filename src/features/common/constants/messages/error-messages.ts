@@ -3,6 +3,7 @@ const errorMessages = {
   unexpectedToken: 'Unexpected token.',
   unexpectedCode: 'Unexpected code.',
   userExists: 'The user already exist.',
+  onboardingAlreadyCompleted: 'The user has already completed onboarding.',
 };
 
 export default errorMessages;

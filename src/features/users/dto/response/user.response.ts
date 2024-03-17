@@ -5,28 +5,17 @@ import { User } from '@/features/users';
 import { Name } from '@/features/users/entities/name.embedded';
 
 export class UserResponse {
-  constructor({
-    id,
-    name,
-    email,
-    role,
-    status,
-    phoneNumber,
-    createdAt,
-    updatedAt,
-    emailVerified,
-  }: User) {
-    Object.assign(this, {
-      id,
-      name,
-      email,
-      role,
-      phoneNumber,
-      status,
-      createdAt,
-      updatedAt,
-      isEmailVerified: !!emailVerified,
-    });
+  constructor(user: User) {
+    this.id = user.id;
+    this.name = user.name;
+    this.phoneNumber = user.phoneNumber;
+    this.email = user.email;
+    this.role = user.role;
+    this.status = user.status;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
+    this.isEmailVerified = !!user.emailVerified;
+    this.isOnboardingCompleted = user?.profile?.isOnboardingCompleted ?? false;
   }
 
   @ApiProperty()
@@ -55,4 +44,7 @@ export class UserResponse {
 
   @ApiProperty()
   isEmailVerified: boolean;
+
+  @ApiProperty()
+  isOnboardingCompleted: boolean;
 }

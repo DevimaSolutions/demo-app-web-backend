@@ -7,11 +7,12 @@ import { ValidationBadRequestException } from '@/exceptions';
 export class JoiValidationPipe<T> implements PipeTransform {
   constructor(private schema: ObjectSchema<T>, private options?: ValidationOptions) {}
 
-  transform(value: T) {
-    const { error } = this.schema.validate(value, this.options);
+  transform(values: T) {
+    const { value, error } = this.schema.validate(values, this.options);
     if (error) {
       throw new ValidationBadRequestException(error, 'Validation failed');
     }
+
     return value;
   }
 }

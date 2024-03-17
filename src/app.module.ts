@@ -10,6 +10,7 @@ import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
 import { FilesModule } from '@/features/files';
 import { MailerModule } from '@/features/mailer';
+import { ProfilesModule } from '@/features/profiles';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
 import { UserCommand, UsersModule } from '@/features/users';
@@ -34,6 +35,7 @@ import { UserCommand, UsersModule } from '@/features/users';
     }),
     UsersModule,
     AuthModule,
+    ProfilesModule,
     MailerModule,
     CommandModule,
     SeederModule.forRoot(seederConfig),
