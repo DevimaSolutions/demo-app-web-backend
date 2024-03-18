@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { OnboardingFirstStepRequest } from './onboarding-first-step.request';
+import { OnboardingFourthStepRequest } from './onboarding-fourth-step.request';
 import { OnboardingSecondStepRequest } from './onboarding-second-step.request';
 import { OnboardingThirdStepRequest } from './onboarding-third-step.request';
 
@@ -11,4 +12,6 @@ export class OnboardingRequest {
   secondStep?: OnboardingSecondStepRequest;
   @ApiPropertyOptional()
   thirdStep?: OnboardingThirdStepRequest;
+  @ApiPropertyOptional()
+  fourthStep?: OnboardingFourthStepRequest;
 }

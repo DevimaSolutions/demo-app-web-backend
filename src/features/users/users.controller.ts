@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { CreateUserRequest, UpdateUserRequest } from './dto';
 import { UsersService } from './services';
@@ -15,12 +15,14 @@ export class UsersController {
 
   @Post()
   @Authorized(UserRole.Admin)
+  @ApiOperation({ description: 'Roles required: Admin' })
   create(@Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserRequest) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
   @Authorized(UserRole.Admin)
+  @ApiOperation({ description: 'Roles required: Admin' })
   findAll() {
     return this.usersService.findAll();
   }
@@ -28,6 +30,7 @@ export class UsersController {
   @Get(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOperation({ description: 'Roles required: Admin' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
   }
@@ -35,6 +38,7 @@ export class UsersController {
   @Patch(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOperation({ description: 'Roles required: Admin' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserRequest,
@@ -45,6 +49,7 @@ export class UsersController {
   @Delete(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
+  @ApiOperation({ description: 'Roles required: Admin' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.remove(id);
   }

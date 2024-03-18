@@ -3,8 +3,11 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -15,6 +18,7 @@ import { Name } from './name.embedded';
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
+import { SoftSkill } from '@/features/soft-skills/entities';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -88,6 +92,9 @@ export class User extends BaseEntity {
   })
   public updatedAt: Date;
 
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
+  deletedAt: Date | null;
+
   @Column({ type: 'varchar', name: 'google_id', unique: true, nullable: true, default: null })
   googleId?: string | null;
 
@@ -102,4 +109,15 @@ export class User extends BaseEntity {
   })
   @JoinColumn({ name: 'profile_id' })
   profile: Profile;
+
+  @ManyToMany(() => SoftSkill, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'users_soft_skills',
+    joinColumn: { name: 'user_id' },
+    inverseJoinColumn: { name: 'soft_skill_id' },
+  })
+  softSkills: SoftSkill[];
 }

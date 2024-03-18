@@ -1,10 +1,11 @@
-import { Controller, Get, Put, Body, Req } from '@nestjs/common';
+import { Controller, Get, Put, Delete, Body, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { ProfilesService } from './profiles.service';
 
 import { Authorized } from '@/features/auth';
 import { IRequestWithUser } from '@/features/auth/interfaces';
+import { MessageResponse } from '@/features/common';
 import { OnboardingRequest } from '@/features/profiles/dto';
 import { onboardingProfileSchema } from '@/features/profiles/validations';
 import { JoiValidationPipe } from '@/pipes';
@@ -28,5 +29,11 @@ export class ProfilesController {
   @Authorized()
   async getOnboarding(@Req() req: IRequestWithUser) {
     return await this.profilesService.getOnboarding(req.user.id);
+  }
+
+  @Delete()
+  @Authorized()
+  async remove(@Req() req: IRequestWithUser): Promise<MessageResponse> {
+    return await this.profilesService.remove(req.user.id);
   }
 }

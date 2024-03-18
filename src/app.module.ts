@@ -13,6 +13,7 @@ import { MailerModule } from '@/features/mailer';
 import { ProfilesModule } from '@/features/profiles';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
+import { SoftSkillsModule } from '@/features/soft-skills';
 import { UserCommand, UsersModule } from '@/features/users';
 
 // TODO: Add global filter to return success object
@@ -40,6 +41,7 @@ import { UserCommand, UsersModule } from '@/features/users';
     CommandModule,
     SeederModule.forRoot(seederConfig),
     FilesModule,
+    SoftSkillsModule,
   ],
   controllers: [AppController],
   providers: [

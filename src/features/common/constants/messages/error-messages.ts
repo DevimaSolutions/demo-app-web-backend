@@ -4,6 +4,7 @@ const errorMessages = {
   unexpectedCode: 'Unexpected code.',
   userExists: 'The user already exist.',
   onboardingAlreadyCompleted: 'The user has already completed onboarding.',
+  softSkillExist: 'Soft skill with the same name already exist.',
 };
 
 export default errorMessages;

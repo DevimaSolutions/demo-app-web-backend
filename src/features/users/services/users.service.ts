@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Not } from 'typeorm';
 
 import { ValidationFieldsException } from '@/exceptions';
+import { errorMessages } from '@/features/common';
 import { CreateUserRequest, UpdateUserRequest, UserResponse } from '@/features/users/dto';
 import { HasherService } from '@/features/users/services/hasher.service';
 import { UsersRepository } from '@/features/users/users.repository';
@@ -14,7 +15,7 @@ export class UsersService {
     const user = await this.usersRepository.findOneBy({ email: createUserDto.email });
 
     if (user) {
-      throw new ValidationFieldsException({ email: 'user with the same email already exist' });
+      throw new ValidationFieldsException({ email: errorMessages.userExists });
     }
 
     const entity = this.usersRepository.create(createUserDto);
@@ -49,7 +50,7 @@ export class UsersService {
       });
 
       if (exist) {
-        throw new ValidationFieldsException({ email: 'user with the same email already exist' });
+        throw new ValidationFieldsException({ email: errorMessages.userExists });
       }
     }
 

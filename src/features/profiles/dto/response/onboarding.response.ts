@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
 import { OnboardingFirstStepResponse } from './onboarding-first-step.response';
+import { OnboardingFourthStepResponse } from './onboarding-fourth-step.response';
 import { OnboardingSecondStepResponse } from './onboarding-second-step.response';
 import { OnboardingThirdStepResponse } from './onboarding-third-step.response';
 
@@ -12,6 +13,7 @@ export class OnboardingResponse {
     this.firstStep = new OnboardingFirstStepResponse(user);
     this.secondStep = new OnboardingSecondStepResponse(user.profile);
     this.thirdStep = new OnboardingThirdStepResponse(user.profile);
+    this.fourthStep = new OnboardingFourthStepResponse(user);
   }
 
   @ApiProperty()
@@ -20,6 +22,8 @@ export class OnboardingResponse {
   secondStep: OnboardingSecondStepResponse;
   @ApiProperty()
   thirdStep: OnboardingThirdStepResponse;
+  @ApiProperty()
+  fourthStep: OnboardingFourthStepResponse;
 
   @ApiProperty({ type: 'boolean' })
   @Expose()
