@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource, In, MoreThanOrEqual } from 'typeorm';
+import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { User } from './entities/user.entity';
@@ -29,6 +30,16 @@ export class UsersRepository extends BaseRepository<User> {
 
   async getOne(id: string) {
     const entity = await this.findOneBy({ id });
+
+    if (!entity) {
+      throw new NotFoundException();
+    }
+
+    return entity;
+  }
+
+  async getOneWithRelations(id: string, relations?: FindOptionsRelations<User>) {
+    const entity = await this.findOne({ where: { id }, relations });
 
     if (!entity) {
       throw new NotFoundException();

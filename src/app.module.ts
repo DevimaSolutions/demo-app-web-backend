@@ -14,6 +14,7 @@ import { ProfilesModule } from '@/features/profiles';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
 import { SoftSkillsModule } from '@/features/soft-skills';
+import { UsersToSkillsModule } from '@/features/user-to-skills';
 import { UserCommand, UsersModule } from '@/features/users';
 
 // TODO: Add global filter to return success object
@@ -34,6 +35,7 @@ import { UserCommand, UsersModule } from '@/features/users';
       }),
       inject: [ConfigService],
     }),
+    UsersToSkillsModule,
     UsersModule,
     AuthModule,
     ProfilesModule,

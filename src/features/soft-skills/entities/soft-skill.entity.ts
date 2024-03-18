@@ -1,5 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+
+import { UsersToSkills } from '@/features/user-to-skills/entities';
 
 @Entity({ name: 'soft_skills' })
 export class SoftSkill extends BaseEntity {
@@ -15,4 +18,13 @@ export class SoftSkill extends BaseEntity {
   @Column({ unique: true })
   @ApiProperty()
   name: string;
+
+  @OneToMany(() => UsersToSkills, (usersToSkills) => usersToSkills.softSkill, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @ApiHideProperty()
+  @Exclude()
+  public usersToSkills: UsersToSkills[];
 }

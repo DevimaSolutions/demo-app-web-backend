@@ -5,8 +5,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
@@ -17,7 +16,7 @@ import { Name } from './name.embedded';
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
-import { SoftSkill } from '@/features/soft-skills/entities';
+import { UsersToSkills } from '@/features/user-to-skills/entities';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -107,14 +106,11 @@ export class User extends BaseEntity {
   })
   profile: Profile;
 
-  @ManyToMany(() => SoftSkill, {
+  @OneToMany(() => UsersToSkills, (usersToSkills) => usersToSkills.user, {
     eager: true,
     cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
-  @JoinTable({
-    name: 'users_soft_skills',
-    joinColumn: { name: 'user_id' },
-    inverseJoinColumn: { name: 'soft_skill_id' },
-  })
-  softSkills: SoftSkill[];
+  usersToSkills: UsersToSkills[];
 }

@@ -6,7 +6,7 @@ import { User } from '@/features/users';
 
 export class OnboardingFourthStepResponse {
   constructor(user: User) {
-    this.softSkills = user?.softSkills ?? [];
+    this.softSkills = user?.usersToSkills?.map((item) => item.softSkill) ?? [];
   }
 
   @ApiProperty({ type: SoftSkill })

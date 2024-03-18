@@ -22,15 +22,20 @@ export class ProfilesService {
 
     const data = await this.parseOnboardingDataFromRequest(user.id, request);
 
-    let result = await this.usersRepository.save(this.usersRepository.merge(user, data));
+    const save = await this.usersRepository.save(this.usersRepository.merge(user, data));
+
+    const result = await this.usersRepository.getOneWithRelations(userId, {
+      usersToSkills: { softSkill: true },
+    });
 
     const response = new OnboardingResponse(result);
 
     if (response.complete) {
-      result = await this.usersRepository.save(
-        this.usersRepository.merge(result, { profile: { isOnboardingCompleted: true } }),
+      await this.usersRepository.save(
+        this.usersRepository.merge(save, {
+          profile: { isOnboardingCompleted: true },
+        }),
       );
-      return new OnboardingResponse(result);
     }
 
     return response;
@@ -39,8 +44,8 @@ export class ProfilesService {
   async parseOnboardingDataFromRequest(userId: string, request: OnboardingRequest) {
     const { name = null, ...rest } = request?.firstStep ?? {};
 
-    const softSkills = await this.findSoftSkills(request?.fourthStep?.softSkills ?? []);
-    const user = name ? { name: { first: name }, softSkills } : { softSkills };
+    const usersToSkills = await this.findSoftSkills(request?.fourthStep?.softSkills ?? []);
+    const user = name ? { name: { first: name }, usersToSkills } : { usersToSkills };
 
     return {
       ...user,
@@ -57,14 +62,18 @@ export class ProfilesService {
 
   private async findSoftSkills(ids: string[]) {
     if (ids.length) {
-      return await this.softSkillsRepository.findBy({ id: In(ids) });
+      return (await this.softSkillsRepository.findBy({ id: In(ids) })).map((item) => ({
+        softSkillId: item.id,
+      }));
     }
 
     return [];
   }
 
   async getOnboarding(userId: string) {
-    const user = await this.usersRepository.getOne(userId);
+    const user = await this.usersRepository.getOneWithRelations(userId, {
+      usersToSkills: { softSkill: true },
+    });
     return new OnboardingResponse(user);
   }
 
