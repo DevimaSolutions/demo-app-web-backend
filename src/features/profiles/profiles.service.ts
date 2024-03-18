@@ -20,7 +20,7 @@ export class ProfilesService {
       throw new BadRequestException(errorMessages.onboardingAlreadyCompleted);
     }
 
-    const data = await this.parseOnboardingDataFromRequest(request);
+    const data = await this.parseOnboardingDataFromRequest(user.id, request);
 
     let result = await this.usersRepository.save(this.usersRepository.merge(user, data));
 
@@ -36,7 +36,7 @@ export class ProfilesService {
     return response;
   }
 
-  async parseOnboardingDataFromRequest(request: OnboardingRequest) {
+  async parseOnboardingDataFromRequest(userId: string, request: OnboardingRequest) {
     const { name = null, ...rest } = request?.firstStep ?? {};
 
     const softSkills = await this.findSoftSkills(request?.fourthStep?.softSkills ?? []);
@@ -48,6 +48,9 @@ export class ProfilesService {
         ...rest,
         ...(request?.secondStep || {}),
         ...(request?.thirdStep || {}),
+        user: {
+          id: userId,
+        },
       },
     };
   }

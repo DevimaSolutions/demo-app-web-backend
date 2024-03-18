@@ -5,10 +5,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -101,13 +100,11 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', name: 'linkedin_id', unique: true, nullable: true, default: null })
   linkedinId?: string | null;
 
-  @ManyToOne(() => Profile, (profile) => profile.user, {
+  @OneToOne(() => Profile, (profile) => profile.user, {
     eager: true,
     nullable: true,
     cascade: true,
-    onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'profile_id' })
   profile: Profile;
 
   @ManyToMany(() => SoftSkill, {

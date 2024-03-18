@@ -37,7 +37,11 @@ export class Profile extends BaseEntity {
   @Column({ name: 'is_onboarding_completed', default: false })
   isOnboardingCompleted: boolean;
 
-  @OneToOne(() => User, (user) => user.profile)
+  @OneToOne(() => User, (user) => user.profile, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => FileEntity, {
