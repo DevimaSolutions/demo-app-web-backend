@@ -29,6 +29,7 @@ export class SoftSkillsController {
 
   @Post()
   @Authorized(UserRole.Admin)
+  @ApiOperation({ description: 'Roles required: Admin' })
   create(@Body(new JoiValidationPipe(createSoftSkillSchema)) request: CreateSoftSkillRequest) {
     return this.softSkillsService.create(request);
   }
