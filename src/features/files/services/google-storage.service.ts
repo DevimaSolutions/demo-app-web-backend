@@ -1,4 +1,4 @@
-import { extname } from 'path';
+import { extname, join } from 'path';
 
 import { Bucket, Storage } from '@google-cloud/storage';
 import { Injectable } from '@nestjs/common';
@@ -20,9 +20,9 @@ export class GoogleStorageService {
     this.bucket = this.storage.bucket(bucket);
   }
 
-  async upload(file: Express.Multer.File) {
+  async upload(file: Express.Multer.File, destination = '') {
     const filename = this.getFilename(file);
-    const gcFile = this.bucket.file(filename);
+    const gcFile = this.bucket.file(join(destination, filename));
 
     return new Promise<Express.Multer.File>((resolve, reject) => {
       gcFile
@@ -33,12 +33,25 @@ export class GoogleStorageService {
         .on('finish', () =>
           resolve({
             ...file,
-            path: `https://storage.googleapis.com/${this.config.get('google.bucket')}/${filename}`,
+            path: `https://storage.googleapis.com/${this.config.get('google.bucket')}/${join(
+              destination,
+              filename,
+            )}`,
             filename: filename,
           }),
         )
         .end(file.buffer);
     });
+  }
+
+  async remove(name: string) {
+    const file = this.bucket.file(name);
+
+    const exist = (await file.exists()).some((item) => item);
+
+    if (exist) {
+      await file.delete();
+    }
   }
 
   private getFilename(file: Express.Multer.File) {

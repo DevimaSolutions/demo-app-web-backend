@@ -1,15 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { errorMessages, successMessages } from '@/features/common';
+import { FilesService } from '@/features/files';
 import { OnboardingRequest, OnboardingResponse } from '@/features/profiles/dto';
 import { SoftSkillsRepository } from '@/features/soft-skills';
-import { UsersRepository } from '@/features/users';
+import { UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly softSkillsRepository: SoftSkillsRepository,
+    private readonly fileService: FilesService,
   ) {}
 
   async onboarding(userId: string, request: OnboardingRequest) {
@@ -73,5 +75,20 @@ export class ProfilesService {
 
     await this.usersRepository.softRemove(user);
     return { message: successMessages.removeProfile };
+  }
+
+  async upload(userId: string, file: Express.Multer.File) {
+    const user = await this.usersRepository.getOne(userId);
+
+    if (user.profile.profileImage) {
+      await this.fileService.remove(user.profile.profileImage);
+    }
+    const profileImage = await this.fileService.create(file, 'profiles');
+
+    const userResponse = await this.usersRepository.save(
+      this.usersRepository.merge(user, { profile: { profileImage } }),
+    );
+
+    return new UserResponse(userResponse);
   }
 }
