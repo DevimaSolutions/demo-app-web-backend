@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { BaseRepository } from '@/features/common/base.repository';
@@ -29,5 +29,15 @@ export class SoftSkillsRepository extends BaseRepository<SoftSkill> {
     }
 
     return entity;
+  }
+
+  async findSoftSkillsByIds(ids: string[]) {
+    if (ids.length) {
+      return (await this.findBy({ id: In(ids) })).map((item) => ({
+        softSkillId: item.id,
+      }));
+    }
+
+    return [];
   }
 }

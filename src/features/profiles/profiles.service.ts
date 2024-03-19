@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { In } from 'typeorm';
 
 import { errorMessages, successMessages } from '@/features/common';
 import { OnboardingRequest, OnboardingResponse } from '@/features/profiles/dto';
@@ -41,10 +40,12 @@ export class ProfilesService {
     return response;
   }
 
-  async parseOnboardingDataFromRequest(userId: string, request: OnboardingRequest) {
+  private async parseOnboardingDataFromRequest(userId: string, request: OnboardingRequest) {
     const { name = null, ...rest } = request?.firstStep ?? {};
 
-    const usersToSkills = await this.findSoftSkills(request?.fourthStep?.softSkills ?? []);
+    const usersToSkills = await this.softSkillsRepository.findSoftSkillsByIds(
+      request?.fourthStep?.softSkills ?? [],
+    );
     const user = name ? { name: { first: name }, usersToSkills } : { usersToSkills };
 
     return {
@@ -58,16 +59,6 @@ export class ProfilesService {
         },
       },
     };
-  }
-
-  private async findSoftSkills(ids: string[]) {
-    if (ids.length) {
-      return (await this.softSkillsRepository.findBy({ id: In(ids) })).map((item) => ({
-        softSkillId: item.id,
-      }));
-    }
-
-    return [];
   }
 
   async getOnboarding(userId: string) {

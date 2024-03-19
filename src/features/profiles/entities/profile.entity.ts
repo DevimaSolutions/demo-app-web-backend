@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 
 import { FileEntity } from '@/features/files/entities';
 import { Gender, ProfileType, LearningPace } from '@/features/profiles/enums';
@@ -44,10 +36,10 @@ export class Profile extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => FileEntity, {
+  @OneToOne(() => FileEntity, {
     eager: true,
     nullable: true,
-    cascade: ['insert', 'update'],
+    cascade: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'file_id' })
