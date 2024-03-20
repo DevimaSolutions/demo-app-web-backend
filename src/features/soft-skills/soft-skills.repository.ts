@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In } from 'typeorm';
+import { DataSource, In, Not } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { BaseRepository } from '@/features/common/base.repository';
@@ -39,5 +39,11 @@ export class SoftSkillsRepository extends BaseRepository<SoftSkill> {
     }
 
     return [];
+  }
+
+  async existByName(name: string, excludeId: string | null = null) {
+    return await this.exist({
+      where: { name, ...(excludeId ? { id: Not(excludeId) } : {}) },
+    });
   }
 }

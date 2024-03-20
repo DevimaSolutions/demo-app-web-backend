@@ -113,4 +113,8 @@ export class User extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   usersToSkills: UsersToSkills[];
+
+  get isAdmin() {
+    return this.role === UserRole.Admin;
+  }
 }

@@ -15,21 +15,21 @@ export class SoftSkillsController {
 
   @Get()
   @Authorized()
-  findAll() {
+  index() {
     return this.softSkillsService.findAll();
   }
 
   @Get(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
+  show(@Param('id', ParseUUIDPipe) id: string) {
     return this.softSkillsService.getOne(id);
   }
 
   @Post()
   @Authorized(UserRole.Admin)
-  @ApiOperation({ description: 'Roles required: Admin' })
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   create(@Body(new JoiValidationPipe(createSoftSkillSchema)) request: CreateSoftSkillRequest) {
     return this.softSkillsService.create(request);
   }
@@ -37,7 +37,7 @@ export class SoftSkillsController {
   @Patch(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new JoiValidationPipe(createSoftSkillSchema)) request: CreateSoftSkillRequest,
@@ -48,7 +48,7 @@ export class SoftSkillsController {
   @Delete(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.softSkillsService.remove(id);
   }

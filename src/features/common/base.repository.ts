@@ -1,7 +1,18 @@
 import { getNamespace } from 'cls-hooked';
-import { DataSource, EntityManager, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
+import {
+  DataSource,
+  EntityManager,
+  EntityTarget,
+  FindManyOptions,
+  ObjectLiteral,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
+import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { runInNewHookContext } from './cls-hooks';
+import { PaginationResponse } from './dto';
+import { IPaginationOptions } from './interfaces';
 import { ITransactionOptions, Propagation } from './transaction.types';
 import {
   NAMESPACE_NAME,
@@ -12,8 +23,85 @@ import {
 import { TransactionalError } from './transactional-error';
 
 export class BaseRepository<Entity extends ObjectLiteral> extends Repository<Entity> {
+  private DEFAULT_LIMIT = 10;
+  private DEFAULT_PAGE = 1;
+
   constructor(target: EntityTarget<Entity>, protected dataSource: DataSource) {
     super(target, dataSource.createEntityManager());
+  }
+
+  async paginate<EntityTransform>(
+    options?: IPaginationOptions<Entity, EntityTransform>,
+    searchOptions?: FindManyOptions<Entity> | FindOptionsWhere<Entity>,
+  ): Promise<PaginationResponse<Entity, EntityTransform>> {
+    const page = this.resolveNumericOption(options?.page, this.DEFAULT_PAGE);
+    const limit = this.resolveNumericOption(options?.limit, this.DEFAULT_LIMIT);
+
+    let items: Entity[] = [];
+    let total = 0;
+
+    if (page < 1) {
+      return new PaginationResponse({
+        items,
+        total,
+        page,
+        limit,
+        transformer: options?.transformer,
+      });
+    }
+
+    [items, total] = await this.findAndCount({
+      skip: limit * (page - 1),
+      take: limit,
+      ...searchOptions,
+    });
+    return new PaginationResponse({ items, total, page, limit, transformer: options?.transformer });
+  }
+
+  async paginateQueryBuilder<EntityTransform>(
+    queryBuilder: SelectQueryBuilder<Entity>,
+    options: IPaginationOptions<Entity, EntityTransform>,
+  ): Promise<PaginationResponse<Entity, EntityTransform>> {
+    const page = this.resolveNumericOption(options?.page, this.DEFAULT_PAGE);
+    const limit = this.resolveNumericOption(options?.limit, this.DEFAULT_LIMIT);
+
+    const promises: [Promise<Entity[]>, Promise<number> | number] = [
+      queryBuilder
+        .limit(limit)
+        .offset((page - 1) * limit)
+        .getMany(),
+      this.countQuery(queryBuilder),
+    ];
+
+    const [items, total] = await Promise.all(promises);
+    return new PaginationResponse({
+      items,
+      total,
+      page,
+      limit,
+      transformer: options?.transformer,
+    });
+  }
+
+  async countQuery(queryBuilder: SelectQueryBuilder<Entity>): Promise<number> {
+    const totalQueryBuilder = queryBuilder.clone();
+
+    totalQueryBuilder.skip(undefined).limit(undefined).offset(undefined).take(undefined).orderBy();
+
+    const { value } = (await queryBuilder.connection
+      .createQueryBuilder()
+      .select('COUNT(*)', 'value')
+      .from(`(${totalQueryBuilder.getQuery()})`, 'uniqueTableAlias')
+      .setParameters(queryBuilder.getParameters())
+      .getRawOne<{ value: string }>()) as { value: string };
+
+    return Number(value);
+  }
+
+  private resolveNumericOption(value: string | number | undefined, defaultValue: number): number {
+    const resolvedValue = Number(value);
+    if (Number.isInteger(resolvedValue) && resolvedValue >= 0) return resolvedValue;
+    return defaultValue;
   }
 
   /**

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Not } from 'typeorm';
 
 import { SoftSkillsRepository } from './soft-skills.repository';
 
@@ -30,9 +29,7 @@ export class SoftSkillsService {
 
   async update(id: string, request: CreateSoftSkillRequest) {
     const softSkill = await this.repository.getOne(id);
-    const exist = await this.repository.exist({
-      where: { id: Not(id), name: request.name },
-    });
+    const exist = await this.repository.existByName(request.name, id);
 
     if (exist) {
       throw new ValidationFieldsException({ email: errorMessages.softSkillExist });

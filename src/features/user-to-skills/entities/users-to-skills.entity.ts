@@ -17,11 +17,17 @@ export class UsersToSkills {
   })
   public createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.usersToSkills)
+  @ManyToOne(() => User, (user) => user.usersToSkills, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   public user: User;
 
-  @ManyToOne(() => SoftSkill, (softSkill) => softSkill.usersToSkills)
+  @ManyToOne(() => SoftSkill, (softSkill) => softSkill.usersToSkills, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'soft_skill_id' })
   public softSkill: SoftSkill;
 }

@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Not } from 'typeorm';
 
 import { ValidationFieldsException } from '@/exceptions';
 import { errorMessages } from '@/features/common';
-import { CreateUserRequest, UpdateUserRequest, UserResponse } from '@/features/users/dto';
+import { User } from '@/features/users';
+import {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserPaginateQuery,
+  UserResponse,
+} from '@/features/users/dto';
 import { HasherService } from '@/features/users/services/hasher.service';
 import { UsersRepository } from '@/features/users/users.repository';
 
@@ -26,9 +31,8 @@ export class UsersService {
     return new UserResponse(entity);
   }
 
-  async findAll() {
-    const users = await this.usersRepository.find();
-    return users.map((user) => new UserResponse(user));
+  async findAllPaginate(query: UserPaginateQuery, user: User) {
+    return await this.usersRepository.findAllPaginate(query, !user.isAdmin);
   }
 
   async findOne(id: string) {
@@ -45,9 +49,7 @@ export class UsersService {
     const entity = await this.usersRepository.getOne(id);
 
     if (updateUserDto.email) {
-      const exist = await this.usersRepository.exist({
-        where: { id: Not(id), email: updateUserDto.email },
-      });
+      const exist = await this.usersRepository.existByEmail(updateUserDto.email, id);
 
       if (exist) {
         throw new ValidationFieldsException({ email: errorMessages.userExists });

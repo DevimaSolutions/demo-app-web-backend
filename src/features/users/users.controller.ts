@@ -1,11 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+  Req,
+} from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
-import { CreateUserRequest, UpdateUserRequest } from './dto';
+import { CreateUserRequest, UpdateUserRequest, UserPaginateQuery, UserResponse } from './dto';
 import { UsersService } from './services';
 
 import { Authorized, UserRole } from '@/features/auth';
-import { updateUserSchema, createUserSchema } from '@/features/users/validations';
+import { IRequestWithUser } from '@/features/auth/interfaces';
+import { ApiPaginatedResponse } from '@/features/common';
+import {
+  updateUserSchema,
+  createUserSchema,
+  userPaginationQuerySchema,
+} from '@/features/users/validations';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Users')
@@ -13,32 +30,36 @@ import { JoiValidationPipe } from '@/pipes';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @Authorized(UserRole.Admin)
-  @ApiOperation({ description: 'Roles required: Admin' })
-  create(@Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserRequest) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
-  @Authorized(UserRole.Admin)
-  @ApiOperation({ description: 'Roles required: Admin' })
-  findAll() {
-    return this.usersService.findAll();
+  @Authorized()
+  @ApiPaginatedResponse(UserResponse)
+  index(
+    @Req() req: IRequestWithUser,
+    @Query(new JoiValidationPipe(userPaginationQuerySchema))
+    query: UserPaginateQuery,
+  ) {
+    return this.usersService.findAllPaginate(query, req.user);
   }
 
   @Get(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
+  show(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Post()
+  @Authorized(UserRole.Admin)
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
+  create(@Body(new JoiValidationPipe(createUserSchema)) createUserDto: CreateUserRequest) {
+    return this.usersService.create(createUserDto);
   }
 
   @Patch(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new JoiValidationPipe(updateUserSchema)) updateUserDto: UpdateUserRequest,
@@ -49,7 +70,7 @@ export class UsersController {
   @Delete(':id')
   @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
-  @ApiOperation({ description: 'Roles required: Admin' })
+  @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.remove(id);
   }
