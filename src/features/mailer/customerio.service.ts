@@ -13,8 +13,8 @@ export class CustomerioService extends MailerService {
 
   constructor(protected readonly config: ConfigService) {
     super(config);
-    this.apiClient = new APIClient(this.config.get('mailer.customerio.appApiKey') || '');
-    this.senderEmail = this.config.get<string>('mailer.from') || 'noreply@example.com';
+    this.apiClient = new APIClient(this.config.get('mailer.customerio.appApiKey', ''));
+    this.senderEmail = this.config.get<string>('mailer.from', 'noreply@example.com');
   }
 
   async send(recipient: string, templateId: EmailTemplate, params: EmailParams<EmailTemplate>) {
