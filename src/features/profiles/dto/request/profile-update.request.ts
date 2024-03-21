@@ -19,7 +19,7 @@ export class ProfileUpdateRequest {
   gender?: Gender;
 
   @ApiPropertyOptional()
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @ApiPropertyOptional()
   password?: string;
