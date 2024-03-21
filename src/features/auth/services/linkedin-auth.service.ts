@@ -9,11 +9,15 @@ import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { LinkedinAuthRequest, LinkedinUserinfoResponse } from '@/features/auth/dto';
-import { UserResponse, UsersRepository } from '@/features/users';
+import { HasherService, UserResponse, UsersRepository } from '@/features/users';
 @Injectable()
 export class LinkedinAuthService {
   private accessToken: string;
-  constructor(private readonly config: ConfigService, private usersRepository: UsersRepository) {}
+  constructor(
+    private readonly config: ConfigService,
+    private usersRepository: UsersRepository,
+    private readonly hasher: HasherService,
+  ) {}
 
   async authenticate(code: string, redirect: string) {
     this.accessToken = await this.getAccessToken({ code, redirect });
@@ -91,9 +95,10 @@ export class LinkedinAuthService {
     return this.usersRepository.save({
       email,
       name: {
-        first: given_name ?? email.split('@')[0],
+        first: given_name ?? email.replace(/@.+/, ''),
         last: family_name ?? '',
       },
+      nickname: this.hasher.generateRandomNicknameFromEmail(email),
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),

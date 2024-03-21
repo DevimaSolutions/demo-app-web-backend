@@ -80,7 +80,9 @@ export class UsersRepository extends BaseRepository<User> {
         new Brackets((qb) => {
           qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
             search: `%${search}%`,
-          }).orWhere('LOWER(email) LIKE :search', { search: `%${search}%` });
+          })
+            .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
+            .orWhere('LOWER(nickname) LIKE :search', { search: `%${search}%` });
         }),
       );
 
@@ -102,6 +104,12 @@ export class UsersRepository extends BaseRepository<User> {
   async existByEmail(email: string, excludeId: string | null = null) {
     return await this.exist({
       where: { email, ...(excludeId ? { id: Not(excludeId) } : {}) },
+    });
+  }
+
+  async existByNickname(nickname: string, excludeId: string | null = null) {
+    return await this.exist({
+      where: { nickname, ...(excludeId ? { id: Not(excludeId) } : {}) },
     });
   }
 }

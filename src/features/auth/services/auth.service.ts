@@ -79,7 +79,10 @@ export class AuthService {
       throw new ValidationFieldsException({ email: errorMessages.userExists });
     }
 
-    const entity = this.usersRepository.create({ email });
+    const entity = this.usersRepository.create({
+      email,
+      nickname: this.hasher.generateRandomNicknameFromEmail(email),
+    });
     entity.password = await this.hasher.hash(password);
 
     await this.usersRepository.save(entity);

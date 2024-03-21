@@ -1,10 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
+import { ValidationFieldsException } from '@/exceptions';
 import { errorMessages, successMessages } from '@/features/common';
 import { FilesService } from '@/features/files';
-import { OnboardingRequest, OnboardingResponse } from '@/features/profiles/dto';
+import {
+  OnboardingRequest,
+  OnboardingResponse,
+  ProfileUpdateRequest,
+} from '@/features/profiles/dto';
 import { SoftSkillsRepository } from '@/features/soft-skills';
-import { UserResponse, UsersRepository } from '@/features/users';
+import { User, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class ProfilesService {
@@ -13,6 +18,22 @@ export class ProfilesService {
     private readonly softSkillsRepository: SoftSkillsRepository,
     private readonly fileService: FilesService,
   ) {}
+
+  async update(user: User, request: ProfileUpdateRequest) {
+    const data = await request.getData();
+    if (
+      request.nickname &&
+      (await this.usersRepository.existByNickname(request.nickname, user.id))
+    ) {
+      throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
+    }
+    await this.usersRepository.save(this.usersRepository.merge(user, data));
+    const result = await this.usersRepository.getOneWithRelations(user.id, {
+      usersToSkills: { softSkill: true },
+    });
+
+    return new UserResponse(result);
+  }
 
   async onboarding(userId: string, request: OnboardingRequest) {
     const user = await this.usersRepository.getOne(userId);

@@ -8,13 +8,17 @@ import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
 
 import { UserRole, UserStatus } from '@/features/auth';
-import { UserResponse, UsersRepository } from '@/features/users';
+import { HasherService, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class GoogleAuthService {
   private readonly oauthClient: Auth.OAuth2Client;
 
-  constructor(private readonly config: ConfigService, private usersRepository: UsersRepository) {
+  constructor(
+    private readonly config: ConfigService,
+    private usersRepository: UsersRepository,
+    private readonly hasher: HasherService,
+  ) {
     const clientID = this.config.get('google.clientId');
     const clientSecret = this.config.get('google.clientSecret');
     this.oauthClient = new google.auth.OAuth2(clientID, clientSecret);
@@ -64,9 +68,10 @@ export class GoogleAuthService {
     return this.usersRepository.save({
       email,
       name: {
-        first: given_name ?? email.split('@')[0],
+        first: given_name ?? email.replace(/@.+/, ''),
         last: family_name ?? '',
       },
+      nickname: this.hasher.generateRandomNicknameFromEmail(email),
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),

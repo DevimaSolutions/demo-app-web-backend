@@ -11,6 +11,7 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   FileTypeValidator,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -22,14 +23,23 @@ import { IRequestWithUser } from '@/features/auth/interfaces';
 import { MessageResponse } from '@/features/common';
 import { fileConstants } from '@/features/common';
 import { CreateFileRequest } from '@/features/files';
-import { OnboardingRequest } from '@/features/profiles/dto';
-import { onboardingProfileSchema } from '@/features/profiles/validations';
+import { OnboardingRequest, ProfileUpdateRequest } from '@/features/profiles/dto';
+import { onboardingProfileSchema, profileUpdateSchema } from '@/features/profiles/validations';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Profile')
 @Controller('profile')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
+
+  @Patch()
+  @Authorized()
+  async update(
+    @Req() req: IRequestWithUser,
+    @Body(new JoiValidationPipe(profileUpdateSchema)) request: ProfileUpdateRequest,
+  ) {
+    return this.profilesService.update(req.user, request);
+  }
 
   @Put('/onboarding')
   @Authorized()

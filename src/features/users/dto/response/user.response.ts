@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { FileResponse } from '@/features/files';
+import { Gender } from '@/features/profiles/enums';
 import { SoftSkill } from '@/features/soft-skills';
 import { User } from '@/features/users';
 import { Name } from '@/features/users/entities/name.embedded';
@@ -12,12 +13,15 @@ export class UserResponse {
     this.name = user.name;
     this.phoneNumber = user.phoneNumber;
     this.email = user.email;
+    this.nickname = user.nickname;
     this.role = user.role;
     this.status = user.status;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
     this.isEmailVerified = !!user.emailVerified;
     this.isOnboardingCompleted = user?.profile?.isOnboardingCompleted ?? false;
+    this.age = user?.profile?.age ?? null;
+    this.gender = user?.profile?.gender ?? null;
     this.avatar = user?.profile?.profileImage
       ? new FileResponse(user?.profile?.profileImage)
       : null;
@@ -36,6 +40,15 @@ export class UserResponse {
 
   @ApiProperty({ type: 'string', format: 'email' })
   email: string;
+
+  @ApiProperty()
+  nickname: string;
+
+  @ApiProperty({ type: 'number', nullable: true })
+  age: number | null;
+
+  @ApiProperty({ enum: Gender, nullable: true })
+  gender: Gender | null;
 
   @ApiProperty({ enum: UserRole })
   role: UserRole;
