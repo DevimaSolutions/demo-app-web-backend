@@ -2617,6 +2617,11 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
+customerio-node@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/customerio-node/-/customerio-node-4.1.1.tgz#6c6129ec3def9df41bd483a01f21a94db343c8a8"
+  integrity sha512-EaQZwN9QhzZMyYZdFxXk6GZPT/zX/S3Jcn4gaUm5v7MXWbA/txr87hgPHokAHcLGdUGiAB/RwN9aqTABMgbE5g==
+
 date-fns@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-3.3.1.tgz#7581daca0892d139736697717a168afbb908cfed"
