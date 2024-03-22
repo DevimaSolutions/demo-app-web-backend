@@ -6,6 +6,7 @@ import { FilesService } from '@/features/files';
 import {
   OnboardingRequest,
   OnboardingResponse,
+  ProfileFriendsPaginateQuery,
   ProfileUpdateRequest,
 } from '@/features/profiles/dto';
 import { SoftSkillsRepository } from '@/features/soft-skills';
@@ -28,11 +29,33 @@ export class ProfilesService {
       throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
     }
     await this.usersRepository.save(this.usersRepository.merge(user, data));
-    const result = await this.usersRepository.getOneWithRelations(user.id, {
-      usersToSkills: { softSkill: true },
-    });
+    const result = await this.usersRepository.getOneWithSkills(user.id);
 
     return new UserResponse(result);
+  }
+
+  async getFriends(user: User, query: ProfileFriendsPaginateQuery) {
+    return await this.usersRepository.findAllFriendsPaginate(user.id, query);
+  }
+  async addFriend(userId: string, friendId: string) {
+    const user = await this.usersRepository.getOneWithRelations(userId, { friends: true });
+    const friend = await this.usersRepository.findOne({ where: { id: friendId } });
+    if (friend && friend.id !== userId) {
+      user.friends.push(friend);
+      await this.usersRepository.save(user);
+    }
+
+    return { message: successMessages.success };
+  }
+
+  async removeFriend(userId: string, friendId: string) {
+    const user = await this.usersRepository.getOneWithRelations(userId, { friends: true });
+    user.friends = user.friends.filter((friend) => {
+      return friend.id !== friendId;
+    });
+    await this.usersRepository.save(user);
+
+    return { message: successMessages.success };
   }
 
   async onboarding(userId: string, request: OnboardingRequest) {
@@ -85,9 +108,7 @@ export class ProfilesService {
   }
 
   async getOnboarding(userId: string) {
-    const user = await this.usersRepository.getOneWithRelations(userId, {
-      usersToSkills: { softSkill: true },
-    });
+    const user = await this.usersRepository.getOneWithSkills(userId);
     return new OnboardingResponse(user);
   }
 

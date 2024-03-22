@@ -8,6 +8,7 @@ import { User } from './entities/user.entity';
 import { UserStatus } from '@/features/auth';
 import { BaseRepository } from '@/features/common/base.repository';
 import { UserPaginateQuery, UserResponse } from '@/features/users/dto';
+import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<User> {
@@ -47,6 +48,12 @@ export class UsersRepository extends BaseRepository<User> {
     }
 
     return entity;
+  }
+
+  async getOneWithSkills(id: string) {
+    return await this.getOneWithRelations(id, {
+      usersToSkills: { softSkill: true },
+    });
   }
 
   async getUserByEmailVerificationCode(id: string, code: string) {
@@ -93,6 +100,49 @@ export class UsersRepository extends BaseRepository<User> {
         }),
       );
     }
+
+    return this.paginateQueryBuilder(builder, {
+      page,
+      limit,
+      transformer: UserResponse,
+    });
+  }
+
+  async findAllFriendsPaginate(userId: string, { page, limit, search }: UserPaginateQuery) {
+    const builder = this.createQueryBuilder('u')
+      .leftJoinAndSelect('u.profile', 'profile')
+      .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.usersToSkills', 'usersToSkills')
+      .leftJoinAndSelect('usersToSkills.softSkill', 'softSkill')
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('utf.friend_id')
+          .from(UsersToFriends, 'utf')
+          .where('utf.user_id = :userId', { userId })
+          .getQuery();
+        return 'u.id IN ' + subQuery;
+      })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('u.email_verified IS NOT NULL').andWhere(
+            'profile.is_onboarding_completed = true',
+          );
+        }),
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("CONCAT(LOWER(u.name_first), ' ', LOWER(u.name_last)) LIKE :search", {
+            search: `%${search}%`,
+          })
+            .orWhere('LOWER(u.email) LIKE :search', {
+              search: `%${search}%`,
+            })
+            .orWhere('LOWER(u.nickname) LIKE :search', {
+              search: `%${search}%`,
+            });
+        }),
+      );
 
     return this.paginateQueryBuilder(builder, {
       page,

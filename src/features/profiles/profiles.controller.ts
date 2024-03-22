@@ -12,9 +12,12 @@ import {
   ParseFilePipe,
   FileTypeValidator,
   Patch,
+  Query,
+  Param,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { ProfilesService } from './profiles.service';
 
@@ -23,8 +26,16 @@ import { IRequestWithUser } from '@/features/auth/interfaces';
 import { MessageResponse } from '@/features/common';
 import { fileConstants } from '@/features/common';
 import { CreateFileRequest } from '@/features/files';
-import { OnboardingRequest, ProfileUpdateRequest } from '@/features/profiles/dto';
-import { onboardingProfileSchema, profileUpdateSchema } from '@/features/profiles/validations';
+import {
+  OnboardingRequest,
+  ProfileFriendsPaginateQuery,
+  ProfileUpdateRequest,
+} from '@/features/profiles/dto';
+import {
+  onboardingProfileSchema,
+  profileFriendsPaginationQuerySchema,
+  profileUpdateSchema,
+} from '@/features/profiles/validations';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Profile')
@@ -39,6 +50,33 @@ export class ProfilesController {
     @Body(new JoiValidationPipe(profileUpdateSchema)) request: ProfileUpdateRequest,
   ) {
     return this.profilesService.update(req.user, request);
+  }
+
+  @Get('/friends')
+  @Authorized()
+  async getFriends(
+    @Req() req: IRequestWithUser,
+    @Query(new JoiValidationPipe(profileFriendsPaginationQuerySchema))
+    query: ProfileFriendsPaginateQuery,
+  ) {
+    return this.profilesService.getFriends(req.user, query);
+  }
+
+  @Patch('/friends/:friedId')
+  @Authorized()
+  @ApiParam({ name: 'friedId', type: 'string' })
+  async addFriend(@Req() req: IRequestWithUser, @Param('friedId', ParseUUIDPipe) friedId: string) {
+    return this.profilesService.addFriend(req.user.id, friedId);
+  }
+
+  @Delete('/friends/:friedId')
+  @Authorized()
+  @ApiParam({ name: 'friedId', type: 'string' })
+  async removeFriend(
+    @Req() req: IRequestWithUser,
+    @Param('friedId', ParseUUIDPipe) friedId: string,
+  ) {
+    return this.profilesService.removeFriend(req.user.id, friedId);
   }
 
   @Put('/onboarding')

@@ -2,7 +2,7 @@ import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
-import { UsersToSkills } from '@/features/user-to-skills/entities';
+import { UsersToSkills } from '@/features/users/entities/users-to-skills.entity';
 
 @Entity({ name: 'soft_skills' })
 export class SoftSkill extends BaseEntity {

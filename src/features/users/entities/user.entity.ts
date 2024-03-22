@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -16,7 +18,8 @@ import { Name } from './name.embedded';
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
-import { UsersToSkills } from '@/features/user-to-skills/entities';
+import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
+import { UsersToSkills } from '@/features/users/entities/users-to-skills.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -117,6 +120,28 @@ export class User extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   usersToSkills: UsersToSkills[];
+
+  @OneToMany(() => UsersToFriends, (usersToFriends) => usersToFriends.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  usersToFriends: UsersToFriends[];
+
+  @OneToMany(() => UsersToFriends, (usersToFriends) => usersToFriends.friend, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  friendsToUsers: UsersToFriends[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'users_friends',
+    inverseJoinColumn: { name: 'friend_id' },
+    joinColumn: { name: 'user_id' },
+  })
+  friends: User[];
 
   get isAdmin() {
     return this.role === UserRole.Admin;

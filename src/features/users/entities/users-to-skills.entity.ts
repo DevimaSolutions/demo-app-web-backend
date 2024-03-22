@@ -1,7 +1,7 @@
 import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { SoftSkill } from '@/features/soft-skills/entities';
-import { User } from '@/features/users/entities';
+import { SoftSkill } from '@/features/soft-skills/entities/soft-skill.entity';
+import { User } from '@/features/users/entities/user.entity';
 
 @Entity('users_soft_skills')
 export class UsersToSkills {
