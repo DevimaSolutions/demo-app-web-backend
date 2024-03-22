@@ -9,6 +9,7 @@ import { Auth, google } from 'googleapis';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { HasherService, UserResponse, UsersRepository } from '@/features/users';
+import { UserSocials } from '@/features/users/entities';
 
 @Injectable()
 export class GoogleAuthService {
@@ -38,12 +39,12 @@ export class GoogleAuthService {
       throw new UnauthorizedException();
     }
 
-    if (!user.googleId) {
-      user.googleId = sub;
+    if (!user.socials?.googleId) {
+      user.socials = new UserSocials({ googleId: sub });
       await user.save();
     }
 
-    if (sub && user.googleId !== sub) {
+    if (sub && user.socials.googleId !== sub) {
       throw new ForbiddenException();
     }
 
@@ -75,7 +76,7 @@ export class GoogleAuthService {
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),
-      googleId: id,
+      socials: new UserSocials({ googleId: id }),
     });
   }
 

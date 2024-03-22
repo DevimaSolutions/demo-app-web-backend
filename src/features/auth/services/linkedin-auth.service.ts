@@ -10,6 +10,8 @@ import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { UserRole, UserStatus } from '@/features/auth';
 import { LinkedinAuthRequest, LinkedinUserinfoResponse } from '@/features/auth/dto';
 import { HasherService, UserResponse, UsersRepository } from '@/features/users';
+import { UserSocials } from '@/features/users/entities';
+
 @Injectable()
 export class LinkedinAuthService {
   private accessToken: string;
@@ -35,12 +37,12 @@ export class LinkedinAuthService {
       throw new UnauthorizedException();
     }
 
-    if (!user.linkedinId) {
-      user.linkedinId = userInfo.sub;
+    if (!user.socials?.linkedinId) {
+      user.socials = new UserSocials({ linkedinId: userInfo.sub });
       await user.save();
     }
 
-    if (userInfo.sub && user.linkedinId !== userInfo.sub) {
+    if (userInfo.sub && user.socials.linkedinId !== userInfo.sub) {
       throw new ForbiddenException();
     }
 
@@ -102,7 +104,7 @@ export class LinkedinAuthService {
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),
-      linkedinId: sub,
+      socials: new UserSocials({ linkedinId: sub }),
     });
   }
 }

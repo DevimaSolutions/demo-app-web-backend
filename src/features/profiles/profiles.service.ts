@@ -122,7 +122,7 @@ export class ProfilesService {
   async upload(userId: string, file: Express.Multer.File) {
     const user = await this.usersRepository.getOne(userId);
 
-    if (user.profile.profileImage) {
+    if (user.profile?.profileImage) {
       await this.fileService.remove(user.profile.profileImage);
     }
     const profileImage = await this.fileService.create(file, 'profiles');

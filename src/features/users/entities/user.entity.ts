@@ -14,6 +14,7 @@ import {
 } from 'typeorm';
 
 import { Name } from './name.embedded';
+import { UserSocials } from './user-socials.entity';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
@@ -70,48 +71,33 @@ export class User extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })
   @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
-  public emailVerified: Date | null;
+  emailVerified: Date | null;
 
   @Column({ type: 'varchar', name: 'verify_email_code', nullable: true, default: null })
-  public verifyEmailCode: string | null;
+  verifyEmailCode: string | null;
 
   @Column({ type: 'timestamp', name: 'verify_code_submitted_at', nullable: true, default: null })
-  public verifyCodeSubmittedAt: Date | null;
+  verifyCodeSubmittedAt: Date | null;
 
   @Column({ type: 'timestamp', name: 'verify_code_expire_at', nullable: true, default: null })
-  public verifyCodeExpireAt: Date | null;
+  verifyCodeExpireAt: Date | null;
 
   @Column({ type: 'timestamp', name: 'reset_password_submitted_at', nullable: true, default: null })
-  public resetPasswordSubmittedAt: Date | null;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    name: 'created_at',
-  })
-  public createdAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    name: 'updated_at',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  public updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
-  deletedAt: Date | null;
-
-  @Column({ type: 'varchar', name: 'google_id', unique: true, nullable: true, default: null })
-  googleId?: string | null;
-
-  @Column({ type: 'varchar', name: 'linkedin_id', unique: true, nullable: true, default: null })
-  linkedinId?: string | null;
+  resetPasswordSubmittedAt: Date | null;
 
   @OneToOne(() => Profile, (profile) => profile.user, {
     eager: true,
     nullable: true,
     cascade: true,
   })
-  profile: Profile;
+  profile: Profile | null;
+
+  @OneToOne(() => UserSocials, (socials) => socials.user, {
+    eager: true,
+    nullable: true,
+    cascade: true,
+  })
+  socials: UserSocials | null;
 
   @OneToMany(() => UsersToSkills, (usersToSkills) => usersToSkills.user, {
     eager: true,
@@ -142,6 +128,22 @@ export class User extends BaseEntity {
     joinColumn: { name: 'user_id' },
   })
   friends: User[];
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    name: 'created_at',
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
+  deletedAt: Date | null;
 
   get isAdmin() {
     return this.role === UserRole.Admin;
