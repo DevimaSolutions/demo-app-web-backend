@@ -62,21 +62,24 @@ export class ProfilesController {
     return this.profilesService.getFriends(req.user, query);
   }
 
-  @Patch('/friends/:friedId')
+  @Patch('/friends/:friendId')
   @Authorized()
-  @ApiParam({ name: 'friedId', type: 'string' })
-  async addFriend(@Req() req: IRequestWithUser, @Param('friedId', ParseUUIDPipe) friedId: string) {
-    return this.profilesService.addFriend(req.user.id, friedId);
+  @ApiParam({ name: 'friendId', type: 'string' })
+  async addFriend(
+    @Req() req: IRequestWithUser,
+    @Param('friendId', ParseUUIDPipe) friendId: string,
+  ) {
+    return this.profilesService.addFriend(req.user.id, friendId);
   }
 
-  @Delete('/friends/:friedId')
+  @Delete('/friends/:friendId')
   @Authorized()
-  @ApiParam({ name: 'friedId', type: 'string' })
+  @ApiParam({ name: 'friendId', type: 'string' })
   async removeFriend(
     @Req() req: IRequestWithUser,
-    @Param('friedId', ParseUUIDPipe) friedId: string,
+    @Param('friendId', ParseUUIDPipe) friendId: string,
   ) {
-    return this.profilesService.removeFriend(req.user.id, friedId);
+    return this.profilesService.removeFriend(req.user.id, friendId);
   }
 
   @Put('/onboarding')
