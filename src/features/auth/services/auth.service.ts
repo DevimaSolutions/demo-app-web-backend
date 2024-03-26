@@ -1,17 +1,23 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { addMilliseconds, differenceInSeconds } from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import ms from 'ms';
 
-import { JwtTokens, SignUpRequest } from '../dto';
-import { IJwtPayload } from '../interfaces';
-
 import { ValidationFieldsException } from '@/exceptions';
+import { JwtTokens, SignUpRequest } from '@/features/auth/dto';
+import { IJwtPayload } from '@/features/auth/interfaces';
 import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
-import { HasherService, User, UserResponse, UsersRepository } from '@/features/users';
+import {
+  HasherService,
+  User,
+  UserResponse,
+  UsersRepository,
+  VerificationTokenType,
+} from '@/features/users';
+import { UsersVerificationToken } from '@/features/users/entities/users-verification-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -87,36 +93,34 @@ export class AuthService {
 
     await this.usersRepository.save(entity);
 
-    await this.sendVerifyEmail(entity);
+    await this.sendVerifyEmail(entity.id);
 
     return this.createJwtTokenPair(entity);
   }
 
-  async sendVerifyEmail(user: User) {
+  async sendVerifyEmail(userId: string) {
+    const user = await this.usersRepository.getOneWithRelations({ id: userId }, { tokens: true });
+
     if (!user.emailVerified) {
-      const allowSubmit = user.verifyCodeSubmittedAt
-        ? differenceInSeconds(new Date(), user.verifyCodeSubmittedAt) >= 60
-        : true;
+      const token = user.tokens.find((token) => token.isVerifyEmail);
+      const allowSubmit = token ? differenceInSeconds(new Date(), token.submittedAt) >= 60 : true;
 
       if (allowSubmit) {
-        const verifyEmailCode = this.hasher.generateValidationCode();
+        const verifyToken = UsersVerificationToken.makeVerifyEmail(
+          token?.id,
+          this.hasher.generateValidationCode(),
+          ms(this.config.get<string>('jwt.emailDuration', '1h')),
+        );
+        this.usersRepository.merge(user, { tokens: [verifyToken] });
 
-        await this.usersRepository.update(user.id, {
-          verifyEmailCode,
-          verifyCodeExpireAt: addMilliseconds(
-            new Date(),
-            ms(this.config.get<string>('jwt.emailDuration', '1h')),
-          ),
-          verifyCodeSubmittedAt: new Date(),
-        });
+        await user.save();
 
         await this.mailerService.verifyMail(
           user.email,
-          verifyEmailCode,
+          verifyToken.token as string,
           user?.name.full ?? user.email,
         );
       }
-
       return { message: successMessages.emailSent };
     }
 
@@ -127,8 +131,7 @@ export class AuthService {
     try {
       const user = await this.usersRepository.getUserByEmailVerificationCode(id, code);
 
-      await this.usersRepository.verifyEmail(user.id);
-
+      await this.usersRepository.verifyEmail(user);
       return { message: successMessages.emailIsVerified };
     } catch (e) {
       const message: string | undefined =
@@ -156,17 +159,20 @@ export class AuthService {
 
   async sendForgotPasswordEmail(email: string) {
     try {
-      const user = await this.usersRepository.findActiveUserByEmail(email);
+      const user = await this.usersRepository.findActiveUserByEmail(email, { tokens: true });
       if (user) {
-        const allowSubmit = user.resetPasswordSubmittedAt
-          ? differenceInSeconds(new Date(), user.resetPasswordSubmittedAt) >= 60
+        const passwordResetToken = user.tokens.find((token) => token.isPasswordReset);
+        const allowSubmit = passwordResetToken
+          ? differenceInSeconds(new Date(), passwordResetToken.submittedAt) >= 60
           : true;
 
         if (allowSubmit) {
           const token = await this.jwtService.signAsync(Object.assign({ sub: user.id }), {
             expiresIn: this.config.get('jwt.emailDuration'),
           });
-          await this.usersRepository.update(user.id, { resetPasswordSubmittedAt: new Date() });
+          const verifyToken = UsersVerificationToken.makePasswordReset(passwordResetToken?.id);
+          this.usersRepository.merge(user, { tokens: [verifyToken] });
+          await user.save();
 
           await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
         }
@@ -181,7 +187,11 @@ export class AuthService {
     try {
       const { sub } = await this.jwtService.verifyAsync(token);
       const hash = await this.hasher.hash(password);
-      await this.usersRepository.update(sub, { password: hash, resetPasswordSubmittedAt: null });
+      const user = await this.usersRepository.getOneWithRelations(
+        { id: sub, tokens: { type: VerificationTokenType.PasswordReset } },
+        { tokens: true },
+      );
+      await this.usersRepository.resetPassword(user, hash);
       return { message: successMessages.passwordChanged };
     } catch (e) {
       const message: string | undefined =

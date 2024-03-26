@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In, MoreThanOrEqual, Not, Brackets, IsNull } from 'typeorm';
+import { Brackets, DataSource, In, IsNull, MoreThanOrEqual, Not } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
@@ -8,6 +8,7 @@ import { BaseRepository } from '@/features/common/base.repository';
 import { UserPaginateQuery, UserResponse } from '@/features/users/dto';
 import { User } from '@/features/users/entities/user.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
+import { VerificationTokenType } from '@/features/users/enums/verification-token-type.enum';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<User> {
@@ -39,8 +40,11 @@ export class UsersRepository extends BaseRepository<User> {
     return entity;
   }
 
-  async getOneWithRelations(id: string, relations?: FindOptionsRelations<User>) {
-    const entity = await this.findOne({ where: { id }, relations });
+  async getOneWithRelations(
+    where: FindOptionsWhere<User>[] | FindOptionsWhere<User>,
+    relations?: FindOptionsRelations<User>,
+  ) {
+    const entity = await this.findOne({ where, relations });
 
     if (!entity) {
       throw new NotFoundException();
@@ -50,30 +54,54 @@ export class UsersRepository extends BaseRepository<User> {
   }
 
   async getOneWithSkills(id: string) {
-    return await this.getOneWithRelations(id, {
-      usersToSkills: { softSkill: true },
-    });
+    return await this.getOneWithRelations(
+      { id },
+      {
+        usersToSkills: { softSkill: true },
+      },
+    );
   }
 
   async getUserByEmailVerificationCode(id: string, code: string) {
-    return this.getOneBy({
-      id,
-      verifyEmailCode: code,
-      verifyCodeExpireAt: MoreThanOrEqual(new Date()),
-    });
+    return this.getOneWithRelations(
+      {
+        id,
+        emailVerified: IsNull(),
+        tokens: {
+          type: VerificationTokenType.VerifyEmail,
+          token: code,
+          expireAt: MoreThanOrEqual(new Date()),
+        },
+      },
+      {
+        tokens: true,
+      },
+    );
   }
 
-  async verifyEmail(id: string) {
-    await this.update(id, {
+  async verifyEmail(user: User) {
+    await this.update(user.id, {
       emailVerified: new Date(),
-      verifyCodeSubmittedAt: null,
-      verifyEmailCode: null,
-      verifyCodeExpireAt: null,
     });
+    for (const token of user.tokens) {
+      await token.remove();
+    }
   }
 
-  async findActiveUserByEmail(email: string) {
-    return this.findOneBy({ email, status: In([UserStatus.Active, UserStatus.Pending]) });
+  async resetPassword(user: User, password: string) {
+    await this.update(user.id, {
+      password,
+    });
+    for (const token of user.tokens) {
+      await token.remove();
+    }
+  }
+
+  async findActiveUserByEmail(email: string, relations?: FindOptionsRelations<User>) {
+    return this.findOne({
+      where: { email, status: In([UserStatus.Active, UserStatus.Pending]) },
+      relations,
+    });
   }
 
   async findActiveUser(id: string) {

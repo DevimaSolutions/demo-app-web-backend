@@ -79,9 +79,12 @@ export class ProfilesService {
 
     const save = await this.usersRepository.save(this.usersRepository.merge(user, data));
 
-    const result = await this.usersRepository.getOneWithRelations(userId, {
-      usersToSkills: { softSkill: true },
-    });
+    const result = await this.usersRepository.getOneWithRelations(
+      { id: userId },
+      {
+        usersToSkills: { softSkill: true },
+      },
+    );
 
     const response = new OnboardingResponse(result);
 

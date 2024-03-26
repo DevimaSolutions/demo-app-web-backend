@@ -20,6 +20,7 @@ import { SocialType } from '@/features/users';
 import { UserSocials } from '@/features/users/entities/user-socials.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
 import { UsersToSkills } from '@/features/users/entities/users-to-skills.entity';
+import { UsersVerificationToken } from '@/features/users/entities/users-verification-token.entity';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -64,22 +65,6 @@ export class User extends BaseEntity {
   @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserStatus)))
   status: UserStatus;
 
-  @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })
-  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
-  emailVerified: Date | null;
-
-  @Column({ type: 'varchar', name: 'verify_email_code', nullable: true, default: null })
-  verifyEmailCode: string | null;
-
-  @Column({ type: 'timestamp', name: 'verify_code_submitted_at', nullable: true, default: null })
-  verifyCodeSubmittedAt: Date | null;
-
-  @Column({ type: 'timestamp', name: 'verify_code_expire_at', nullable: true, default: null })
-  verifyCodeExpireAt: Date | null;
-
-  @Column({ type: 'timestamp', name: 'reset_password_submitted_at', nullable: true, default: null })
-  resetPasswordSubmittedAt: Date | null;
-
   @OneToOne(() => Profile, (profile) => profile.user, {
     eager: true,
     nullable: true,
@@ -108,6 +93,17 @@ export class User extends BaseEntity {
     onUpdate: 'CASCADE',
   })
   usersToFriends: UsersToFriends[];
+
+  @OneToMany(() => UsersVerificationToken, (token) => token.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  tokens: UsersVerificationToken[];
+
+  @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })
+  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
+  emailVerified: Date | null;
 
   @CreateDateColumn({
     type: 'timestamp',

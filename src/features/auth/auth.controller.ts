@@ -54,7 +54,7 @@ export class AuthController {
   @Authorized()
   @Post('confirm/email/resend')
   async resendConfirmEmail(@Req() req: IRequestWithUser): Promise<MessageResponse> {
-    return this.authService.sendVerifyEmail(req.user);
+    return this.authService.sendVerifyEmail(req.user.id);
   }
 
   @Post('google')
