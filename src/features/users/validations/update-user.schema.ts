@@ -10,7 +10,6 @@ export const updateUserSchema = Joi.object<UpdateUserRequest>({
     first: Joi.string().trim().optional().max(255),
     last: Joi.string().trim().optional().max(255),
   }).optional(),
-  phoneNumber: Joi.string().trim().allow(null).optional().max(255),
   email: Joi.string().trim().email().optional().max(255),
   password: Joi.string().trim().pattern(passwordRegexp).max(255).messages({
     'string.pattern.base': validationMessages.password,

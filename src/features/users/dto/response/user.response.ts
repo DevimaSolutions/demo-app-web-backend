@@ -11,7 +11,7 @@ export class UserResponse {
   constructor(user: User) {
     this.id = user.id;
     this.name = user.name;
-    this.phoneNumber = user.phoneNumber;
+    this.phoneNumber = user?.profile?.phoneNumber ?? null;
     this.email = user.email;
     this.nickname = user.nickname;
     this.role = user.role;

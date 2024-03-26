@@ -51,10 +51,6 @@ export class User extends BaseEntity {
   @Factory((faker, ctx) => ctx?.email.replace(/@.+/, '') + '_' + faker?.helpers.replaceSymbols())
   nickname: string;
 
-  @Column('varchar', { name: 'phone_number', nullable: true })
-  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.phone.number()]))
-  phoneNumber: string | null;
-
   @Column('varchar', { nullable: true })
   @Exclude()
   @Factory((_, ctx) => ctx?.password ?? null)

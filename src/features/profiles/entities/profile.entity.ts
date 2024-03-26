@@ -14,6 +14,9 @@ export class Profile extends BaseEntity {
   @PrimaryColumn({ type: 'uuid', generated: 'uuid' })
   id: string;
 
+  @Column('varchar', { name: 'phone_number', nullable: true })
+  phoneNumber: string | null;
+
   @Column({ type: 'int', nullable: true })
   age: number | null;
 

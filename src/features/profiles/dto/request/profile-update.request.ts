@@ -29,10 +29,10 @@ export class ProfileUpdateRequest {
       ...(await this.getHashedPassword()),
       ...this.getFieldObject('name'),
       ...this.getFieldObject('nickname'),
-      ...this.getFieldObject('phoneNumber'),
       profile: {
         ...this.getFieldObject('age'),
         ...this.getFieldObject('gender'),
+        ...this.getFieldObject('phoneNumber'),
       },
     };
   }
