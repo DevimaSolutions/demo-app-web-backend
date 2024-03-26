@@ -9,8 +9,8 @@ import {
   UserPaginateQuery,
   UserResponse,
 } from '@/features/users/dto';
+import { UsersRepository } from '@/features/users/repositoies/users.repository';
 import { HasherService } from '@/features/users/services/hasher.service';
-import { UsersRepository } from '@/features/users/users.repository';
 
 @Injectable()
 export class UsersService {

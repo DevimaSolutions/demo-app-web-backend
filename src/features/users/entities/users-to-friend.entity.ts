@@ -1,9 +1,20 @@
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 import { User } from '@/features/users/entities/user.entity';
 
 @Entity('users_friends')
-export class UsersToFriends {
+export class UsersToFriends extends BaseEntity {
+  constructor(partial: Partial<UsersToFriends>) {
+    super();
+    Object.assign(this, partial);
+  }
   @PrimaryColumn({ type: 'uuid', generated: 'uuid', name: 'user_id' })
   public userId: string;
 
@@ -20,13 +31,13 @@ export class UsersToFriends {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   public user: User;
 
-  @ManyToOne(() => User, (user) => user.friendsToUsers, {
+  @ManyToOne(() => User, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'friend_id' })
+  @JoinColumn({ name: 'friend_id', referencedColumnName: 'id' })
   public friend: User;
 }

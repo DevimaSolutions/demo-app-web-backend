@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -14,11 +12,12 @@ import {
 } from 'typeorm';
 
 import { Name } from './name.embedded';
-import { UserSocials } from './user-socials.entity';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
+import { SocialType } from '@/features/users';
+import { UserSocials } from '@/features/users/entities/user-socials.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
 import { UsersToSkills } from '@/features/users/entities/users-to-skills.entity';
 
@@ -92,12 +91,12 @@ export class User extends BaseEntity {
   })
   profile: Profile | null;
 
-  @OneToOne(() => UserSocials, (socials) => socials.user, {
+  @OneToMany(() => UserSocials, (socials) => socials.user, {
     eager: true,
     nullable: true,
     cascade: true,
   })
-  socials: UserSocials | null;
+  socials: UserSocials[];
 
   @OneToMany(() => UsersToSkills, (usersToSkills) => usersToSkills.user, {
     eager: true,
@@ -114,21 +113,6 @@ export class User extends BaseEntity {
   })
   usersToFriends: UsersToFriends[];
 
-  @OneToMany(() => UsersToFriends, (usersToFriends) => usersToFriends.friend, {
-    cascade: true,
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  friendsToUsers: UsersToFriends[];
-
-  @ManyToMany(() => User)
-  @JoinTable({
-    name: 'users_friends',
-    inverseJoinColumn: { name: 'friend_id' },
-    joinColumn: { name: 'user_id' },
-  })
-  friends: User[];
-
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',
@@ -144,6 +128,10 @@ export class User extends BaseEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
   deletedAt: Date | null;
+
+  hasSocial(socialId: string | undefined, type: SocialType) {
+    return this.socials.find((item) => item.socialId === socialId && item.type === type);
+  }
 
   get isAdmin() {
     return this.role === UserRole.Admin;

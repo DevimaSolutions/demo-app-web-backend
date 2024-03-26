@@ -1,6 +1,8 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { User } from './user.entity';
+
+import { SocialType } from '@/features/users/enums/social-type.enum';
 
 @Entity({ name: 'user_socials' })
 export class UserSocials extends BaseEntity {
@@ -12,14 +14,15 @@ export class UserSocials extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', name: 'google_id', unique: true, nullable: true, default: null })
-  googleId?: string | null;
+  @Column({ type: 'varchar', name: 'social_id', unique: true })
+  socialId: string;
 
-  @Column({ type: 'varchar', name: 'linkedin_id', unique: true, nullable: true, default: null })
-  linkedinId?: string | null;
+  @Column({ type: 'enum', enum: SocialType })
+  type: SocialType;
 
-  @OneToOne(() => User, (user) => user.socials, {
+  @ManyToOne(() => User, (user) => user.socials, {
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
     nullable: false,
   })
   @JoinColumn({ name: 'user_id' })

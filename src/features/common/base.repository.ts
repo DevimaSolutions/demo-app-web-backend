@@ -85,17 +85,8 @@ export class BaseRepository<Entity extends ObjectLiteral> extends Repository<Ent
 
   async countQuery(queryBuilder: SelectQueryBuilder<Entity>): Promise<number> {
     const totalQueryBuilder = queryBuilder.clone();
-
     totalQueryBuilder.skip(undefined).limit(undefined).offset(undefined).take(undefined).orderBy();
-
-    const { value } = (await queryBuilder.connection
-      .createQueryBuilder()
-      .select('COUNT(*)', 'value')
-      .from(`(${totalQueryBuilder.getQuery()})`, 'uniqueTableAlias')
-      .setParameters(queryBuilder.getParameters())
-      .getRawOne<{ value: string }>()) as { value: string };
-
-    return Number(value);
+    return await totalQueryBuilder.getCount();
   }
 
   private resolveNumericOption(value: string | number | undefined, defaultValue: number): number {

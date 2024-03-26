@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
 
 import { UserRole, UserStatus } from '@/features/auth';
-import { HasherService, UserResponse, UsersRepository } from '@/features/users';
+import { HasherService, SocialType, UserResponse, UsersRepository } from '@/features/users';
 import { UserSocials } from '@/features/users/entities';
 
 @Injectable()
@@ -28,7 +28,10 @@ export class GoogleAuthService {
   async authenticate(token: string) {
     const { email, sub } = await this.getTokenInfo(token);
 
-    const user = await this.usersRepository.findOneBy({ email });
+    const user = await this.usersRepository.findOne({
+      where: { email },
+      relations: { socials: true },
+    });
 
     if (!user) {
       const newUser = await this.createUser(token);
@@ -39,12 +42,12 @@ export class GoogleAuthService {
       throw new UnauthorizedException();
     }
 
-    if (!user.socials?.googleId) {
-      user.socials = new UserSocials({ googleId: sub });
+    if (!user.hasSocial(sub, SocialType.Google)) {
+      user.socials.push(new UserSocials({ socialId: sub, type: SocialType.Google }));
       await user.save();
     }
 
-    if (sub && user.socials.googleId !== sub) {
+    if (sub && !user.hasSocial(sub, SocialType.Google)) {
       throw new ForbiddenException();
     }
 
@@ -76,7 +79,7 @@ export class GoogleAuthService {
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),
-      socials: new UserSocials({ googleId: id }),
+      socials: [new UserSocials({ socialId: id, type: SocialType.Google })],
     });
   }
 

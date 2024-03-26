@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In, MoreThanOrEqual, Not, Brackets } from 'typeorm';
+import { DataSource, In, MoreThanOrEqual, Not, Brackets, IsNull } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-
-import { User } from './entities/user.entity';
 
 import { UserStatus } from '@/features/auth';
 import { BaseRepository } from '@/features/common/base.repository';
 import { UserPaginateQuery, UserResponse } from '@/features/users/dto';
+import { User } from '@/features/users/entities/user.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
 
 @Injectable()
@@ -75,6 +74,20 @@ export class UsersRepository extends BaseRepository<User> {
 
   async findActiveUserByEmail(email: string) {
     return this.findOneBy({ email, status: In([UserStatus.Active, UserStatus.Pending]) });
+  }
+
+  async findActiveUser(id: string) {
+    return this.findOne({
+      where: {
+        id,
+        status: In([UserStatus.Active, UserStatus.Pending]),
+        emailVerified: Not(IsNull()),
+        profile: {
+          isOnboardingCompleted: true,
+        },
+      },
+      relations: { profile: true },
+    });
   }
 
   async findAllPaginate({ page, limit, search }: UserPaginateQuery, active = false) {

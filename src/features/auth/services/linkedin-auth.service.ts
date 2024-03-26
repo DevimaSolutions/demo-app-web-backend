@@ -1,15 +1,15 @@
 import {
   BadRequestException,
-  UnauthorizedException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { LinkedinAuthRequest, LinkedinUserinfoResponse } from '@/features/auth/dto';
-import { HasherService, UserResponse, UsersRepository } from '@/features/users';
+import { HasherService, SocialType, UserResponse, UsersRepository } from '@/features/users';
 import { UserSocials } from '@/features/users/entities';
 
 @Injectable()
@@ -26,7 +26,10 @@ export class LinkedinAuthService {
 
     const userInfo = await this.getUserInfo();
 
-    const user = await this.usersRepository.findOneBy({ email: userInfo.email });
+    const user = await this.usersRepository.findOne({
+      where: { email: userInfo.email },
+      relations: { socials: true },
+    });
 
     if (!user) {
       const newUser = await this.createUser(userInfo);
@@ -37,12 +40,12 @@ export class LinkedinAuthService {
       throw new UnauthorizedException();
     }
 
-    if (!user.socials?.linkedinId) {
-      user.socials = new UserSocials({ linkedinId: userInfo.sub });
+    if (!user.hasSocial(userInfo.sub, SocialType.Linkedin)) {
+      user.socials.push(new UserSocials({ socialId: userInfo.sub, type: SocialType.Linkedin }));
       await user.save();
     }
 
-    if (userInfo.sub && user.socials.linkedinId !== userInfo.sub) {
+    if (userInfo.sub && !user.hasSocial(userInfo.sub, SocialType.Linkedin)) {
       throw new ForbiddenException();
     }
 
@@ -104,7 +107,7 @@ export class LinkedinAuthService {
       status: UserStatus.Active,
       role: UserRole.User,
       emailVerified: new Date(),
-      socials: new UserSocials({ linkedinId: sub }),
+      socials: [new UserSocials({ socialId: sub, type: SocialType.Linkedin })],
     });
   }
 }

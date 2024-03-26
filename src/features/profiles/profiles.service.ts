@@ -11,12 +11,15 @@ import {
 } from '@/features/profiles/dto';
 import { SoftSkillsRepository } from '@/features/soft-skills';
 import { User, UserResponse, UsersRepository } from '@/features/users';
+import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
+import { UsersToFriendsRepository } from '@/features/users/repositoies';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly softSkillsRepository: SoftSkillsRepository,
+    private readonly usersToFriendsRepository: UsersToFriendsRepository,
     private readonly fileService: FilesService,
   ) {}
 
@@ -38,22 +41,29 @@ export class ProfilesService {
     return await this.usersRepository.findAllFriendsPaginate(user.id, query);
   }
   async addFriend(userId: string, friendId: string) {
-    const user = await this.usersRepository.getOneWithRelations(userId, { friends: true });
-    const friend = await this.usersRepository.findOne({ where: { id: friendId } });
-    if (friend && friend.id !== userId) {
-      user.friends.push(friend);
-      await this.usersRepository.save(user);
+    const friend = await this.usersRepository.findActiveUser(friendId);
+
+    if (friend) {
+      await new UsersToFriends({ userId, friendId }).save();
+      await new UsersToFriends({ userId: friendId, friendId: userId }).save();
     }
 
     return { message: successMessages.success };
   }
 
   async removeFriend(userId: string, friendId: string) {
-    const user = await this.usersRepository.getOneWithRelations(userId, { friends: true });
-    user.friends = user.friends.filter((friend) => {
-      return friend.id !== friendId;
-    });
-    await this.usersRepository.save(user);
+    const promises = [
+      await this.usersToFriendsRepository.findOneBy({ userId, friendId }),
+      await this.usersToFriendsRepository.findOneBy({ userId: friendId, friendId: userId }),
+    ];
+
+    const friends = await Promise.all(promises);
+
+    for (const friend of friends) {
+      if (friend) {
+        await friend.remove();
+      }
+    }
 
     return { message: successMessages.success };
   }
