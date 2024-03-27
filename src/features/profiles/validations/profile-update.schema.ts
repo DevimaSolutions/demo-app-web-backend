@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 
 import { passwordRegexp, validationMessages } from '@/features/common';
 import { Gender, ProfileUpdateRequest } from '@/features/profiles';
-import { NameRequest } from '@/features/users/dto/request/name.request';
+import { NameRequest } from '@/features/users/dto/requests/name.request';
 export const profileUpdateSchema = Joi.object<ProfileUpdateRequest>({
   name: Joi.object<NameRequest>({
     first: Joi.string().trim().max(255).optional(),

@@ -12,7 +12,7 @@ import { JoiValidationPipe } from '@/pipes';
 @Controller('profile/friends')
 export class ProfilesFriendsController {
   constructor(private readonly service: ProfileFriendsService) {}
-  @Get('')
+  @Get()
   @Authorized()
   async index(
     @Req() req: IRequestWithUser,

@@ -6,7 +6,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import ms from 'ms';
 
 import { ValidationFieldsException } from '@/exceptions';
-import { JwtTokens, SignUpRequest } from '@/features/auth/dto';
+import { JwtTokensResponse, SignUpRequest } from '@/features/auth/dto';
 import { IJwtPayload } from '@/features/auth/interfaces';
 import { errorMessages, successMessages } from '@/features/common';
 import { MailerService } from '@/features/mailer';
@@ -63,7 +63,7 @@ export class AuthService {
     }
   }
 
-  async createJwtTokenPair(user: User | UserResponse): Promise<JwtTokens> {
+  async createJwtTokenPair(user: User | UserResponse): Promise<JwtTokensResponse> {
     const payload: IJwtPayload = { email: user.email, sub: user.id, role: user.role };
     return {
       accessToken: await this.jwtService.signAsync(payload),

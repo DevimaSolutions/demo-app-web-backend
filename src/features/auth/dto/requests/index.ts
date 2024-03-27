@@ -5,3 +5,4 @@ export * from './linkedin-auth.request';
 export * from './sign-up.request';
 export * from './sign-in.request';
 export * from './confirm-email.request';
+export * from './refresh-token.request';

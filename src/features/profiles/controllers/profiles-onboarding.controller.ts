@@ -12,7 +12,7 @@ import { JoiValidationPipe } from '@/pipes';
 @Controller('profile/onboarding')
 export class ProfilesOnboardingController {
   constructor(private readonly service: ProfileOnboardingService) {}
-  @Put('')
+  @Put()
   @Authorized()
   async create(
     @Req() req: IRequestWithUser,
@@ -22,7 +22,7 @@ export class ProfilesOnboardingController {
     return await this.service.onboarding(req.user.id, request);
   }
 
-  @Get('')
+  @Get()
   @Authorized()
   async show(@Req() req: IRequestWithUser) {
     return await this.service.getOnboarding(req.user.id);

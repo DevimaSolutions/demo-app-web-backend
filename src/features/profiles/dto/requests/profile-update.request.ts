@@ -3,7 +3,7 @@ import { DeepPartial } from 'typeorm';
 
 import { Gender } from '@/features/profiles/enums';
 import { HasherService, User } from '@/features/users';
-import { NameRequest } from '@/features/users/dto/request/name.request';
+import { NameRequest } from '@/features/users/dto/requests/name.request';
 
 export class ProfileUpdateRequest {
   @ApiPropertyOptional()

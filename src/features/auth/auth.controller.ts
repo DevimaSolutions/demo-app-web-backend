@@ -6,11 +6,11 @@ import {
   ForgotPasswordRequest,
   GoogleAuthRequest,
   LinkedinAuthRequest,
-  RefreshTokenDto,
   ResetPasswordRequest,
   SignInRequest,
   SignUpRequest,
   ConfirmEmailRequest,
+  RefreshTokenRequest,
 } from './dto';
 import { GoogleAuthGuard, LocalAuthGuard, LinkedinAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
@@ -91,7 +91,7 @@ export class AuthController {
     description: 'Generates new auth token pair using valid refresh token',
   })
   @Post('refresh')
-  async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenRequest) {
     return this.authService.refreshAccessToken(refreshTokenDto.refreshToken);
   }
 

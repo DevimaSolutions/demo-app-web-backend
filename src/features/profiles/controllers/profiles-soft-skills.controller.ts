@@ -12,7 +12,7 @@ import { JoiValidationPipe } from '@/pipes';
 @Controller('profile/soft-skills')
 export class ProfilesSoftSkillsController {
   constructor(private readonly service: ProfileSoftSkillsService) {}
-  @Get('')
+  @Get()
   @Authorized()
   async index(
     @Req() req: IRequestWithUser,
