@@ -73,14 +73,11 @@ export class User extends BaseEntity {
   profile: Profile | null;
 
   @OneToMany(() => UserSocials, (socials) => socials.user, {
-    eager: true,
-    nullable: true,
     cascade: true,
   })
   socials: UserSocials[];
 
   @OneToMany(() => UsersToSkills, (usersToSkills) => usersToSkills.user, {
-    eager: true,
     cascade: true,
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',

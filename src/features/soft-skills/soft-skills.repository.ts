@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In, Not } from 'typeorm';
+import { DataSource, Raw, In, Not } from 'typeorm';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { BaseRepository } from '@/features/common/base.repository';
+import { ProfileSoftSkillsPaginateQuery } from '@/features/profiles';
 import { SoftSkill } from '@/features/soft-skills/entities';
 
 @Injectable()
@@ -45,5 +46,20 @@ export class SoftSkillsRepository extends BaseRepository<SoftSkill> {
     return await this.exist({
       where: { name, ...(excludeId ? { id: Not(excludeId) } : {}) },
     });
+  }
+
+  async getPaginateSoftSkillsForUser(userId: string, query?: ProfileSoftSkillsPaginateQuery) {
+    return this.paginate(
+      { limit: query?.limit, page: query?.page },
+      {
+        where: {
+          name: Raw((alias) => `LOWER(${alias}) LIKE LOWER(:search)`, {
+            search: `%${query?.search ?? ''}%`,
+          }),
+          usersToSkills: { userId },
+        },
+        relations: { usersToSkills: true },
+      },
+    );
   }
 }

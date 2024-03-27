@@ -3,7 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserRole, UserStatus } from '@/features/auth';
 import { FileResponse } from '@/features/files';
 import { Gender } from '@/features/profiles/enums';
-import { SoftSkill } from '@/features/soft-skills';
 import { User } from '@/features/users';
 import { Name } from '@/features/users/entities/name.embedded';
 
@@ -23,8 +22,6 @@ export class UserResponse {
     this.age = user.profile?.age ?? null;
     this.gender = user.profile?.gender ?? null;
     this.avatar = user.profile?.profileImage ? new FileResponse(user.profile?.profileImage) : null;
-
-    this.softSkills = user.usersToSkills?.map((item) => item.softSkill) ?? [];
   }
 
   @ApiProperty()
@@ -68,7 +65,4 @@ export class UserResponse {
 
   @ApiProperty()
   isOnboardingCompleted: boolean;
-
-  @ApiProperty({ type: SoftSkill, isArray: true })
-  softSkills: SoftSkill[];
 }
