@@ -11,7 +11,7 @@ export class UserResponse {
   constructor(user: User) {
     this.id = user.id;
     this.name = user.name;
-    this.phoneNumber = user?.profile?.phoneNumber ?? null;
+    this.phoneNumber = user.profile?.phoneNumber ?? null;
     this.email = user.email;
     this.nickname = user.nickname;
     this.role = user.role;
@@ -19,14 +19,12 @@ export class UserResponse {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
     this.isEmailVerified = !!user.emailVerified;
-    this.isOnboardingCompleted = user?.profile?.isOnboardingCompleted ?? false;
-    this.age = user?.profile?.age ?? null;
-    this.gender = user?.profile?.gender ?? null;
-    this.avatar = user?.profile?.profileImage
-      ? new FileResponse(user?.profile?.profileImage)
-      : null;
+    this.isOnboardingCompleted = user.profile?.isOnboardingCompleted ?? false;
+    this.age = user.profile?.age ?? null;
+    this.gender = user.profile?.gender ?? null;
+    this.avatar = user.profile?.profileImage ? new FileResponse(user.profile?.profileImage) : null;
 
-    this.softSkills = user?.usersToSkills?.map((item) => item.softSkill) ?? [];
+    this.softSkills = user.usersToSkills?.map((item) => item.softSkill) ?? [];
   }
 
   @ApiProperty()
