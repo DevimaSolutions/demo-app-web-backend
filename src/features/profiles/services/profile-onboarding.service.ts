@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
+import { UserStatus } from '@/features/auth';
 import { errorMessages } from '@/features/common';
 import { OnboardingRequest, OnboardingResponse } from '@/features/profiles';
 import { SoftSkillsRepository } from '@/features/soft-skills';
@@ -17,8 +18,12 @@ export class ProfileOnboardingService {
       { usersToSkills: true },
     );
 
-    if (user?.profile?.isOnboardingCompleted) {
-      throw new BadRequestException(errorMessages.onboardingAlreadyCompleted);
+    if (user.isActive || !user.isVerified) {
+      throw new BadRequestException(
+        user.isActive
+          ? errorMessages.onboardingAlreadyCompleted
+          : errorMessages.onboardingEmailIsNotVerified,
+      );
     }
 
     const usersToSkills = await this.softSkillsRepository.findSoftSkillsByIds(
@@ -40,7 +45,7 @@ export class ProfileOnboardingService {
     if (response.complete) {
       await this.usersRepository.save(
         this.usersRepository.merge(save, {
-          profile: { isOnboardingCompleted: true },
+          status: UserStatus.Active,
         }),
       );
     }

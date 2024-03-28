@@ -1,26 +1,27 @@
-import { Controller, Post, UseGuards, Req, Body, Get, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiBody } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Authorized } from './decorators';
 import {
+  ConfirmEmailRequest,
   ForgotPasswordRequest,
   GoogleAuthRequest,
   LinkedinAuthRequest,
+  RefreshTokenRequest,
   ResetPasswordRequest,
   SignInRequest,
   SignUpRequest,
-  ConfirmEmailRequest,
-  RefreshTokenRequest,
 } from './dto';
-import { GoogleAuthGuard, LocalAuthGuard, LinkedinAuthGuard } from './guards';
+import { GoogleAuthGuard, LinkedinAuthGuard, LocalAuthGuard } from './guards';
 import { IRequestWithUser } from './interfaces';
 import { AuthService } from './services';
 
+import { UserStatus } from '@/features/auth/enums';
 import {
+  confirmEmailSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   signupSchema,
-  confirmEmailSchema,
 } from '@/features/auth/validations';
 import { MessageResponse } from '@/features/common';
 import { UserResponse } from '@/features/users';
@@ -43,7 +44,7 @@ export class AuthController {
     return this.authService.signUp(request);
   }
   @Post('confirm/email')
-  @Authorized()
+  @Authorized(undefined, [UserStatus.Pending])
   async confirmEmail(
     @Req() req: IRequestWithUser,
     @Body(new JoiValidationPipe(confirmEmailSchema)) { code }: ConfirmEmailRequest,
@@ -51,7 +52,7 @@ export class AuthController {
     return this.authService.verifyEmail(req.user.id, code);
   }
 
-  @Authorized()
+  @Authorized(undefined, [UserStatus.Pending])
   @Post('confirm/email/resend')
   async resendConfirmEmail(@Req() req: IRequestWithUser): Promise<MessageResponse> {
     return this.authService.sendVerifyEmail(req.user.id);
@@ -95,7 +96,7 @@ export class AuthController {
     return this.authService.refreshAccessToken(refreshTokenDto.refreshToken);
   }
 
-  @Authorized()
+  @Authorized(undefined, [UserStatus.Active, UserStatus.Pending, UserStatus.Verified])
   @Get('profile')
   getProfile(@Req() req: IRequestWithUser) {
     return new UserResponse(req.user);

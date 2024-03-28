@@ -29,9 +29,6 @@ export class Profile extends BaseEntity {
   @Column({ type: 'enum', enum: LearningPace, name: 'learning_pace', nullable: true })
   learningPace: LearningPace | null;
 
-  @Column({ name: 'is_onboarding_completed', default: false })
-  isOnboardingCompleted: boolean;
-
   @OneToOne(() => User, (user) => user.profile, {
     onDelete: 'CASCADE',
     nullable: false,

@@ -61,7 +61,7 @@ export class User extends BaseEntity {
   @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserRole)))
   role: UserRole;
 
-  @Column({ default: UserStatus.Active })
+  @Column({ default: UserStatus.Pending })
   @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserStatus)))
   status: UserStatus;
 
@@ -120,6 +120,22 @@ export class User extends BaseEntity {
 
   hasSocial(socialId: string | undefined, type: SocialType) {
     return this.socials.find((item) => item.socialId === socialId && item.type === type);
+  }
+
+  get isBlocked() {
+    return this.status === UserStatus.Blocked;
+  }
+
+  get isVerified() {
+    return this.status === UserStatus.Verified;
+  }
+
+  get isPending() {
+    return this.status === UserStatus.Pending;
+  }
+
+  get isActive() {
+    return this.status === UserStatus.Active;
   }
 
   get isAdmin() {

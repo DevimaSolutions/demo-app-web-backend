@@ -10,25 +10,16 @@ import {
   UserResponse,
 } from '@/features/users/dto';
 import { UsersRepository } from '@/features/users/repositoies/users.repository';
-import { HasherService } from '@/features/users/services/hasher.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private usersRepository: UsersRepository, private hasher: HasherService) {}
+  constructor(private usersRepository: UsersRepository) {}
 
-  async create(createUserDto: CreateUserRequest) {
-    const user = await this.usersRepository.findOneBy({ email: createUserDto.email });
-
-    if (user) {
-      throw new ValidationFieldsException({ email: errorMessages.userExists });
-    }
-
-    const entity = this.usersRepository.create(createUserDto);
-    entity.password = await this.hasher.hash(createUserDto.password);
-
-    await this.usersRepository.save(entity);
-
-    return new UserResponse(entity);
+  async create(request: CreateUserRequest) {
+    await this.validateUnique(request);
+    const data = await this.validateUnique(request);
+    const user = await this.usersRepository.save(data);
+    return new UserResponse(user);
   }
 
   async findAllPaginate(query: UserPaginateQuery, user: User) {
@@ -45,33 +36,42 @@ export class UsersService {
     return await this.usersRepository.exist({ where: { email } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserRequest) {
+  async update(id: string, request: UpdateUserRequest) {
     const entity = await this.usersRepository.getOne(id);
 
-    if (updateUserDto.email) {
-      const exist = await this.usersRepository.existByEmail(updateUserDto.email, id);
+    const data = await this.validateUnique(request, entity.id);
 
-      if (exist) {
-        throw new ValidationFieldsException({ email: errorMessages.userExists });
-      }
-    }
-
-    const hashedPasswordUpdate = updateUserDto.password
-      ? { password: await this.hasher.hash(updateUserDto.password) }
-      : {};
-
-    await this.usersRepository.save({
-      id: entity.id,
-      ...updateUserDto,
-      ...hashedPasswordUpdate,
-    });
-
-    return this.findOne(id);
+    await this.usersRepository.update(entity.id, data);
+    const user = await this.usersRepository.getOne(entity.id);
+    return new UserResponse(user);
   }
 
   async remove(id: string) {
     const entity = await this.usersRepository.getOne(id);
 
-    await this.usersRepository.remove(entity);
+    await this.usersRepository.softRemove(entity);
+  }
+
+  private async validateUnique(
+    request: UpdateUserRequest | CreateUserRequest,
+    id: string | undefined = undefined,
+  ) {
+    const data = await request.getData();
+
+    if (data.email) {
+      const exist = await this.usersRepository.existByEmail(data.email, id);
+      if (exist) {
+        throw new ValidationFieldsException({ email: errorMessages.userExists });
+      }
+    }
+
+    if (data.nickname) {
+      const exist = await this.usersRepository.existByNickname(data.nickname, id);
+      if (exist) {
+        throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
+      }
+    }
+
+    return data;
   }
 }

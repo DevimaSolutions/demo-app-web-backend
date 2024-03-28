@@ -38,7 +38,7 @@ export class GoogleAuthService {
       return new UserResponse(newUser);
     }
 
-    if (user.status === UserStatus.Blocked) {
+    if (user.isBlocked) {
       throw new UnauthorizedException();
     }
 
@@ -76,7 +76,7 @@ export class GoogleAuthService {
         last: family_name ?? '',
       },
       nickname: this.hasher.generateRandomNicknameFromEmail(email),
-      status: UserStatus.Active,
+      status: UserStatus.Verified,
       role: UserRole.User,
       emailVerified: new Date(),
       socials: [new UserSocials({ socialId: id, type: SocialType.Google })],

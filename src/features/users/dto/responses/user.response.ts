@@ -15,13 +15,11 @@ export class UserResponse {
     this.nickname = user.nickname;
     this.role = user.role;
     this.status = user.status;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
-    this.isEmailVerified = !!user.emailVerified;
-    this.isOnboardingCompleted = user.profile?.isOnboardingCompleted ?? false;
     this.age = user.profile?.age ?? null;
     this.gender = user.profile?.gender ?? null;
     this.avatar = user.profile?.profileImage ? new FileResponse(user.profile?.profileImage) : null;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 
   @ApiProperty()
@@ -59,10 +57,4 @@ export class UserResponse {
 
   @ApiProperty()
   updatedAt: Date;
-
-  @ApiProperty()
-  isEmailVerified: boolean;
-
-  @ApiProperty()
-  isOnboardingCompleted: boolean;
 }

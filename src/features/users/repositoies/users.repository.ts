@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Brackets, DataSource, In, IsNull, MoreThanOrEqual, Not } from 'typeorm';
+import { Brackets, DataSource, MoreThanOrEqual, Not } from 'typeorm';
 import { FindOptionsRelations } from 'typeorm/find-options/FindOptionsRelations';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
@@ -66,7 +66,7 @@ export class UsersRepository extends BaseRepository<User> {
     return this.getOneWithRelations(
       {
         id,
-        emailVerified: IsNull(),
+        status: UserStatus.Pending,
         tokens: {
           type: VerificationTokenType.VerifyEmail,
           token: code,
@@ -82,6 +82,7 @@ export class UsersRepository extends BaseRepository<User> {
   async verifyEmail(user: User) {
     await this.update(user.id, {
       emailVerified: new Date(),
+      status: UserStatus.Verified,
     });
     for (const token of user.tokens) {
       await token.remove();
@@ -99,7 +100,7 @@ export class UsersRepository extends BaseRepository<User> {
 
   async findActiveUserByEmail(email: string, relations?: FindOptionsRelations<User>) {
     return this.findOne({
-      where: { email, status: In([UserStatus.Active, UserStatus.Pending]) },
+      where: { email, status: Not(UserStatus.Blocked) },
       relations,
     });
   }
@@ -108,13 +109,8 @@ export class UsersRepository extends BaseRepository<User> {
     return this.findOne({
       where: {
         id,
-        status: In([UserStatus.Active, UserStatus.Pending]),
-        emailVerified: Not(IsNull()),
-        profile: {
-          isOnboardingCompleted: true,
-        },
+        status: UserStatus.Active,
       },
-      relations: { profile: true },
     });
   }
 
@@ -122,8 +118,6 @@ export class UsersRepository extends BaseRepository<User> {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
-      .leftJoinAndSelect('u.usersToSkills', 'usersToSkills')
-      .leftJoinAndSelect('usersToSkills.softSkill', 'softSkill')
       .andWhere(
         new Brackets((qb) => {
           qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
@@ -137,7 +131,7 @@ export class UsersRepository extends BaseRepository<User> {
     if (active) {
       builder.andWhere(
         new Brackets((qb) => {
-          qb.where('email_verified IS NOT NULL').andWhere('profile.is_onboarding_completed = true');
+          qb.where({ status: UserStatus.Active });
         }),
       );
     }
@@ -153,8 +147,6 @@ export class UsersRepository extends BaseRepository<User> {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
-      .leftJoinAndSelect('u.usersToSkills', 'usersToSkills')
-      .leftJoinAndSelect('usersToSkills.softSkill', 'softSkill')
       .where((qb) => {
         const subQuery = qb
           .subQuery()
@@ -166,9 +158,7 @@ export class UsersRepository extends BaseRepository<User> {
       })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('u.email_verified IS NOT NULL').andWhere(
-            'profile.is_onboarding_completed = true',
-          );
+          qb.where({ status: UserStatus.Active });
         }),
       )
       .andWhere(

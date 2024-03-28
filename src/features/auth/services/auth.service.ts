@@ -51,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async validateUserPayload(payload: IJwtPayload): Promise<User | UserResponse | null> {
+  async validateUserPayload(payload: IJwtPayload): Promise<User | null> {
     try {
       return await this.usersRepository.getOne(payload.sub);
     } catch (e) {
@@ -101,30 +101,29 @@ export class AuthService {
   async sendVerifyEmail(userId: string) {
     const user = await this.usersRepository.getOneWithRelations({ id: userId }, { tokens: true });
 
-    if (!user.emailVerified) {
-      const token = user.tokens.find((token) => token.isVerifyEmail);
-      const allowSubmit = token ? differenceInSeconds(new Date(), token.submittedAt) >= 60 : true;
-
-      if (allowSubmit) {
-        const verifyToken = UsersVerificationToken.makeVerifyEmail(
-          token?.id,
-          this.hasher.generateValidationCode(),
-          ms(this.config.get<string>('jwt.emailDuration', '1h')),
-        );
-        this.usersRepository.merge(user, { tokens: [verifyToken] });
-
-        await user.save();
-
-        await this.mailerService.verifyMail(
-          user.email,
-          verifyToken.token as string,
-          user?.name.full ?? user.email,
-        );
-      }
-      return { message: successMessages.emailSent };
+    if (user.isVerified || user.isActive) {
+      return { message: successMessages.emailIsVerified };
     }
+    const token = user.tokens.find((token) => token.isVerifyEmail);
+    const allowSubmit = token ? differenceInSeconds(new Date(), token.submittedAt) >= 60 : true;
 
-    return { message: successMessages.emailIsVerified };
+    if (user.isPending && allowSubmit) {
+      const verifyToken = UsersVerificationToken.makeVerifyEmail(
+        token?.id,
+        this.hasher.generateValidationCode(),
+        ms(this.config.get<string>('jwt.emailDuration', '1h')),
+      );
+      this.usersRepository.merge(user, { tokens: [verifyToken] });
+
+      await user.save();
+
+      await this.mailerService.verifyMail(
+        user.email,
+        verifyToken.token as string,
+        user?.name.full ?? user.email,
+      );
+    }
+    return { message: successMessages.emailSent };
   }
 
   async verifyEmail(id: string, code: string) {
