@@ -44,7 +44,7 @@ export class AuthController {
     return this.authService.signUp(request);
   }
   @Post('confirm/email')
-  @Authorized(undefined, [UserStatus.Pending])
+  @Authorized(UserStatus.Pending)
   async confirmEmail(
     @Req() req: IRequestWithUser,
     @Body(new JoiValidationPipe(confirmEmailSchema)) { code }: ConfirmEmailRequest,
@@ -52,7 +52,7 @@ export class AuthController {
     return this.authService.verifyEmail(req.user.id, code);
   }
 
-  @Authorized(undefined, [UserStatus.Pending])
+  @Authorized(UserStatus.Pending)
   @Post('confirm/email/resend')
   async resendConfirmEmail(@Req() req: IRequestWithUser): Promise<MessageResponse> {
     return this.authService.sendVerifyEmail(req.user.id);
@@ -96,7 +96,7 @@ export class AuthController {
     return this.authService.refreshAccessToken(refreshTokenDto.refreshToken);
   }
 
-  @Authorized(undefined, [UserStatus.Active, UserStatus.Pending, UserStatus.Verified])
+  @Authorized(UserStatus.Active, UserStatus.Pending, UserStatus.Verified)
   @Get('profile')
   getProfile(@Req() req: IRequestWithUser) {
     return new UserResponse(req.user);

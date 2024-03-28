@@ -20,9 +20,7 @@ export class ProfileOnboardingService {
 
     if (user.isActive || !user.isVerified) {
       throw new BadRequestException(
-        user.isActive
-          ? errorMessages.onboardingAlreadyCompleted
-          : errorMessages.onboardingEmailIsNotVerified,
+        user.isActive ? errorMessages.onboardingAlreadyCompleted : errorMessages.emailNotVerified,
       );
     }
 

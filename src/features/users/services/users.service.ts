@@ -16,7 +16,6 @@ export class UsersService {
   constructor(private usersRepository: UsersRepository) {}
 
   async create(request: CreateUserRequest) {
-    await this.validateUnique(request);
     const data = await this.validateUnique(request);
     const user = await this.usersRepository.save(data);
     return new UserResponse(user);

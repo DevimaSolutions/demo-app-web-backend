@@ -42,7 +42,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Authorized([UserRole.Admin])
+  @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
   @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   show(@Param('id', ParseUUIDPipe) id: string) {
@@ -50,14 +50,14 @@ export class UsersController {
   }
 
   @Post()
-  @Authorized([UserRole.Admin])
+  @Authorized(UserRole.Admin)
   @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   create(@Body(new JoiValidationPipe(createUserSchema)) request: CreateUserRequest) {
     return this.usersService.create(request);
   }
 
   @Patch(':id')
-  @Authorized([UserRole.Admin])
+  @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
   @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   update(
@@ -68,7 +68,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Authorized([UserRole.Admin])
+  @Authorized(UserRole.Admin)
   @ApiParam({ name: 'id', type: 'string' })
   @ApiOperation({ description: 'Roles required: Admin', deprecated: true })
   remove(@Param('id', ParseUUIDPipe) id: string) {

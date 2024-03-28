@@ -9,5 +9,5 @@ export const STATUS_KEY = 'statuses';
  * @param statuses list of users' statuses that are allowed to execute decorated action
  */
 export const Status = (statuses: UserStatus[] = [UserStatus.Active]) => {
-  return SetMetadata(STATUS_KEY, statuses);
+  return SetMetadata(STATUS_KEY, statuses.length ? statuses : [UserStatus.Active]);
 };

@@ -11,15 +11,27 @@ import {
   UserStatus,
 } from '@/features/auth';
 
-/**
- * Protect endpoint using bearer JWT auth.
- * @param roles list of roles that are allowed to execute on decorated action. Leave empty to allow access for any role
- * @param statuses list of statuses that are allowed to execute on decorated action. Leave empty to allow access for only user active
- */
-export const Authorized = (
-  roles: UserRole[] | undefined = undefined,
-  statuses: UserStatus[] | undefined = undefined,
-) => {
+type AuthorizedType = UserRole[] | UserStatus[] | [UserRole[], UserStatus[]];
+
+function Authorized(): ReturnType<typeof applyDecorators>;
+function Authorized(...roles: UserRole[]): ReturnType<typeof applyDecorators>;
+function Authorized(...statuses: UserStatus[]): ReturnType<typeof applyDecorators>;
+function Authorized(roles: UserRole[], statuses: UserStatus[]): ReturnType<typeof applyDecorators>;
+
+function Authorized(...args: AuthorizedType) {
+  let roles: UserRole[] = [];
+  let statuses: UserStatus[] = [];
+  if (args.length) {
+    if (args.some((item) => Object.values(UserRole).includes(item as UserRole))) {
+      roles = args as UserRole[];
+    } else if (args.some((item) => Object.values(UserStatus).includes(item as UserStatus))) {
+      statuses = args as UserStatus[];
+    } else if (args.some((item) => Array.isArray(item))) {
+      roles = args[0] as UserRole[];
+      statuses = args[1] as UserStatus[];
+    }
+  }
+
   const decorators = [
     UseGuards(JwtAuthGuard),
     ApiBearerAuth(),
@@ -32,4 +44,6 @@ export const Authorized = (
   }
 
   return applyDecorators(...decorators);
-};
+}
+
+export { Authorized };
