@@ -26,7 +26,7 @@ function Authorized(...args: AuthorizedType) {
       roles = args as UserRole[];
     } else if (args.some((item) => Object.values(UserStatus).includes(item as UserStatus))) {
       statuses = args as UserStatus[];
-    } else if (args.some((item) => Array.isArray(item))) {
+    } else if ((args as [UserRole[], UserStatus[]]).every((item) => Array.isArray(item))) {
       roles = args[0] as UserRole[];
       statuses = args[1] as UserStatus[];
     }
