@@ -5,7 +5,7 @@ import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { UserStatus } from '@/features/auth';
 import { BaseRepository } from '@/features/common/base.repository';
-import { UserPaginateQuery, UserResponse } from '@/features/users/dto';
+import { UserFriendResponse, UserPaginateQuery, UserResponse } from '@/features/users/dto';
 import { User } from '@/features/users/entities/user.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
 import { VerificationTokenType } from '@/features/users/enums/verification-token-type.enum';
@@ -114,7 +114,7 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
-  async findAllPaginate({ page, limit, search }: UserPaginateQuery, active = false) {
+  async findAllPaginate({ page, limit, search }: UserPaginateQuery) {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
@@ -128,14 +128,6 @@ export class UsersRepository extends BaseRepository<User> {
         }),
       );
 
-    if (active) {
-      builder.andWhere(
-        new Brackets((qb) => {
-          qb.where({ status: UserStatus.Active });
-        }),
-      );
-    }
-
     return this.paginateQueryBuilder(builder, {
       page,
       limit,
@@ -143,16 +135,58 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
-  async findAllFriendsPaginate(userId: string, { page, limit, search }: UserPaginateQuery) {
+  async findAllWithFriendshipsAndPagination(
+    { page, limit, search }: UserPaginateQuery,
+    userId: string,
+  ) {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.usersToFriends', 'usersToFriends', 'friend_id = :friendId', {
+        friendId: userId,
+      })
       .where((qb) => {
         const subQuery = qb
           .subQuery()
           .select('utf.friend_id')
           .from(UsersToFriends, 'utf')
           .where('utf.user_id = :userId', { userId })
+          .where('utf.confirmed = true')
+          .getQuery();
+        return 'u.id NOT IN ' + subQuery;
+      })
+      .andWhere({ status: UserStatus.Active })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
+            search: `%${search}%`,
+          })
+            .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
+            .orWhere('LOWER(nickname) LIKE :search', { search: `%${search}%` });
+        }),
+      );
+
+    return this.paginateQueryBuilder(builder, {
+      page,
+      limit,
+      transformer: UserFriendResponse,
+    });
+  }
+
+  async findAllFriendsPaginate(userId: string, { page, limit, search }: UserPaginateQuery) {
+    const builder = this.createQueryBuilder('u')
+      .leftJoinAndSelect('u.profile', 'profile')
+      .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.usersToFriends', 'usersToFriends', 'friend_id = :friendId', {
+        friendId: userId,
+      })
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('utf.friend_id')
+          .from(UsersToFriends, 'utf')
+          .where('utf.user_id = :userId', { userId })
+          .andWhere('utf.confirmed = true')
           .getQuery();
         return 'u.id IN ' + subQuery;
       })
@@ -178,7 +212,7 @@ export class UsersRepository extends BaseRepository<User> {
     return this.paginateQueryBuilder(builder, {
       page,
       limit,
-      transformer: UserResponse,
+      transformer: UserFriendResponse,
     });
   }
 

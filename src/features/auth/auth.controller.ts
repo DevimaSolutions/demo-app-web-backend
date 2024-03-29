@@ -34,17 +34,24 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
+  @ApiOperation({ summary: 'Password authentication' })
   @ApiBody({ type: SignInRequest })
   async signIn(@Req() req: IRequestWithUser) {
     return this.authService.signIn(req.user);
   }
 
   @Post('sign-up')
+  @ApiOperation({ summary: 'Sign up as the new user.' })
   async signUp(@Body(new JoiValidationPipe(signupSchema)) request: SignUpRequest) {
     return this.authService.signUp(request);
   }
   @Post('confirm/email')
   @Authorized(UserStatus.Pending)
+  @ApiOperation({
+    description:
+      '### You will be able to use this operation only when the user is in the *pending status*',
+    summary: 'Confirm email.',
+  })
   async confirmEmail(
     @Req() req: IRequestWithUser,
     @Body(new JoiValidationPipe(confirmEmailSchema)) { code }: ConfirmEmailRequest,
@@ -54,18 +61,29 @@ export class AuthController {
 
   @Authorized(UserStatus.Pending)
   @Post('confirm/email/resend')
+  @ApiOperation({
+    description:
+      '### You will be able to use this operation only when the user is in the *pending status*',
+    summary: 'Resend confirmation email.',
+  })
   async resendConfirmEmail(@Req() req: IRequestWithUser): Promise<MessageResponse> {
     return this.authService.sendVerifyEmail(req.user.id);
   }
 
   @Post('google')
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({
+    summary: 'Google authentication.',
+  })
   @ApiBody({ type: GoogleAuthRequest })
   async google(@Req() req: IRequestWithUser) {
     return this.authService.createJwtTokenPair(req.user);
   }
 
   @Post('linkedin')
+  @ApiOperation({
+    summary: 'Linkedin authentication.',
+  })
   @UseGuards(LinkedinAuthGuard)
   @ApiBody({ type: LinkedinAuthRequest })
   async linkedin(@Req() req: IRequestWithUser) {
@@ -73,7 +91,7 @@ export class AuthController {
   }
 
   @Post('password/forgot')
-  @ApiOperation({ description: 'Forgot password request' })
+  @ApiOperation({ summary: 'Forgot password request.' })
   async forgotPassword(
     @Body(new JoiValidationPipe(forgotPasswordSchema)) { email }: ForgotPasswordRequest,
   ): Promise<MessageResponse> {
@@ -81,7 +99,7 @@ export class AuthController {
   }
 
   @Put('password/reset')
-  @ApiOperation({ description: 'Reset password request' })
+  @ApiOperation({ summary: 'Reset password request.' })
   async resetPassword(
     @Body(new JoiValidationPipe(resetPasswordSchema)) { token, password }: ResetPasswordRequest,
   ): Promise<MessageResponse> {
@@ -89,7 +107,8 @@ export class AuthController {
   }
 
   @ApiOperation({
-    description: 'Generates new auth token pair using valid refresh token',
+    summary: 'Get a new access token by the refresh token.',
+    description: 'Generates new auth token pair using valid refresh token.',
   })
   @Post('refresh')
   async refreshAccessToken(@Body() refreshTokenDto: RefreshTokenRequest) {
@@ -98,6 +117,9 @@ export class AuthController {
 
   @Authorized(UserStatus.Active, UserStatus.Pending, UserStatus.Verified)
   @Get('profile')
+  @ApiOperation({
+    summary: 'Get the currently logged user.',
+  })
   getProfile(@Req() req: IRequestWithUser) {
     return new UserResponse(req.user);
   }

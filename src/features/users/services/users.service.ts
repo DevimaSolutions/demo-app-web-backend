@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { ValidationFieldsException } from '@/exceptions';
 import { errorMessages } from '@/features/common';
-import { User } from '@/features/users';
 import {
   CreateUserRequest,
   UpdateUserRequest,
@@ -21,8 +20,12 @@ export class UsersService {
     return new UserResponse(user);
   }
 
-  async findAllPaginate(query: UserPaginateQuery, user: User) {
-    return await this.usersRepository.findAllPaginate(query, !user.isAdmin);
+  async findAllPaginate(query: UserPaginateQuery) {
+    return await this.usersRepository.findAllPaginate(query);
+  }
+
+  async findAllWithFriendshipsAndPagination(query: UserPaginateQuery, userId: string) {
+    return await this.usersRepository.findAllWithFriendshipsAndPagination(query, userId);
   }
 
   async findOne(id: string) {

@@ -12,7 +12,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Authorized } from '@/features/auth';
 import { IRequestWithUser } from '@/features/auth/interfaces';
@@ -31,6 +31,9 @@ export class ProfilesController {
 
   @Patch()
   @Authorized()
+  @ApiOperation({
+    summary: 'Update profile',
+  })
   async update(
     @Req() req: IRequestWithUser,
     @Body(new JoiValidationPipe(profileUpdateSchema)) request: ProfileUpdateRequest,
@@ -43,6 +46,9 @@ export class ProfilesController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateFileRequest })
   @Authorized()
+  @ApiOperation({
+    summary: 'Upload an avatar for profile',
+  })
   async upload(
     @Req() req: IRequestWithUser,
     @UploadedFile(
@@ -59,6 +65,9 @@ export class ProfilesController {
   }
   @Delete()
   @Authorized()
+  @ApiOperation({
+    summary: 'Remove profile',
+  })
   async remove(@Req() req: IRequestWithUser): Promise<MessageResponse> {
     return await this.profilesService.remove(req.user.id);
   }

@@ -10,7 +10,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @ApiOperation({ description: 'Check if the app is healthy' })
+  @ApiOperation({ summary: 'Check if the app is healthy' })
   @ApiTags('Health')
   getHealthCheck(): AppResponse {
     return this.appService.getHealthCheck();

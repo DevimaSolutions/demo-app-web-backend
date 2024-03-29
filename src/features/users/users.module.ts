@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { UsersAdminController, UsersController } from './controllers';
 import { User } from './entities';
 import { UsersService, HasherService } from './services';
-import { UsersController } from './users.controller';
 
 import { UserSocials } from '@/features/users/entities/user-socials.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
@@ -21,7 +21,7 @@ import { UsersRepository, UsersToFriendsRepository } from '@/features/users/repo
       UserSocials,
     ]),
   ],
-  controllers: [UsersController],
+  controllers: [UsersAdminController, UsersController],
   providers: [UsersService, UsersRepository, UsersToFriendsRepository, HasherService],
   exports: [UsersService, UsersRepository, UsersToFriendsRepository, HasherService],
 })
