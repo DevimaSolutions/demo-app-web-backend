@@ -14,6 +14,7 @@ import { ProfilesModule } from '@/features/profiles';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
 import { SoftSkillsModule } from '@/features/soft-skills';
+import { SubscriptionsModule } from '@/features/subscriptions';
 import { UserCommand, UsersModule } from '@/features/users';
 
 // TODO: Add global filter to return success object
@@ -42,6 +43,7 @@ import { UserCommand, UsersModule } from '@/features/users';
     SeederModule.forRoot(seederConfig),
     FilesModule,
     SoftSkillsModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -29,6 +29,10 @@ const configureSwagger = (app: INestApplication, configService: ConfigService) =
       'Soft skills',
       'This section is related to managing information about the soft skills of users.',
     )
+    .addTag(
+      'Subscriptions',
+      'This section is related to managing information about the subscriptions of users.',
+    )
     .addBearerAuth({
       type: 'http',
       description:
