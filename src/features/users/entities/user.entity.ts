@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 
 import { Name } from './name.embedded';
+import { UserProgress } from './user-progress.entity';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
@@ -71,6 +72,12 @@ export class User extends BaseEntity {
     cascade: true,
   })
   profile: Profile | null;
+  //added user progress
+  @OneToOne(() => UserProgress, (progress) => progress.user, {
+    eager: true,
+    cascade: true, //check
+  })
+  progress: UserProgress;
 
   @OneToMany(() => UserSocials, (socials) => socials.user, {
     cascade: true,
