@@ -72,10 +72,10 @@ export class User extends BaseEntity {
     cascade: true,
   })
   profile: Profile | null;
-  //added user progress
+
   @OneToOne(() => UserProgress, (progress) => progress.user, {
     eager: true,
-    cascade: true, //check
+    cascade: true,
   })
   progress: UserProgress;
 

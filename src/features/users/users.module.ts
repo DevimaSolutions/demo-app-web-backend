@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersAdminController, UsersController } from './controllers';
 import { User } from './entities';
+import { UserProgress } from './entities/user-progress.entity';
 import { UsersService, HasherService } from './services';
 
 import { UserSocials } from '@/features/users/entities/user-socials.entity';
@@ -19,6 +20,7 @@ import { UsersRepository, UsersToFriendsRepository } from '@/features/users/repo
       UsersToSkills,
       UsersToFriends,
       UserSocials,
+      UserProgress,
     ]),
   ],
   controllers: [UsersAdminController, UsersController],

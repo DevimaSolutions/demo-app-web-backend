@@ -142,6 +142,7 @@ export class UsersRepository extends BaseRepository<User> {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.progress', 'progress')
       .leftJoinAndSelect('u.usersToFriends', 'usersToFriends', 'friend_id = :friendId', {
         friendId: userId,
       })
@@ -177,6 +178,7 @@ export class UsersRepository extends BaseRepository<User> {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.progress', 'progress')
       .leftJoinAndSelect('u.usersToFriends', 'usersToFriends', 'friend_id = :friendId', {
         friendId: userId,
       })

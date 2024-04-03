@@ -11,6 +11,7 @@ import { UserRole, UserStatus } from '@/features/auth';
 import { LinkedinAuthRequest, LinkedinUserinfoResponse } from '@/features/auth/dto';
 import { HasherService, SocialType, UserResponse, UsersRepository } from '@/features/users';
 import { UserSocials } from '@/features/users/entities';
+import { UserProgress } from '@/features/users/entities/user-progress.entity';
 
 @Injectable()
 export class LinkedinAuthService {
@@ -108,6 +109,7 @@ export class LinkedinAuthService {
       role: UserRole.User,
       emailVerified: new Date(),
       socials: [new UserSocials({ socialId: sub, type: SocialType.Linkedin })],
+      progress: new UserProgress({}),
     });
   }
 }

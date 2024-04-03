@@ -17,6 +17,7 @@ import {
   UsersRepository,
   VerificationTokenType,
 } from '@/features/users';
+import { UserProgress } from '@/features/users/entities/user-progress.entity';
 import { UsersVerificationToken } from '@/features/users/entities/users-verification-token.entity';
 
 @Injectable()
@@ -88,6 +89,7 @@ export class AuthService {
     const entity = this.usersRepository.create({
       email,
       nickname: this.hasher.generateRandomNicknameFromEmail(email),
+      progress: new UserProgress({}),
     });
     entity.password = await this.hasher.hash(password);
 
