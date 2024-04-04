@@ -17,6 +17,7 @@ import {
 } from '@/features/profiles/controllers';
 import { Profile } from '@/features/profiles/entities';
 import { SoftSkillsRepository } from '@/features/soft-skills';
+import { HasherService } from '@/features/users';
 import { UsersRepository, UsersToFriendsRepository } from '@/features/users/repositoies';
 
 @Module({
@@ -32,6 +33,7 @@ import { UsersRepository, UsersToFriendsRepository } from '@/features/users/repo
     ProfileFriendsService,
     ProfileSoftSkillsService,
     ProfileOnboardingService,
+    HasherService,
     UsersRepository,
     UsersToFriendsRepository,
     SoftSkillsRepository,

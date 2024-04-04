@@ -37,7 +37,7 @@ export class User extends BaseEntity {
   @Factory((faker) => ({ first: faker?.person.firstName(), last: faker?.person.lastName() }))
   name: Name;
 
-  @Column({ unique: true })
+  @Column()
   @Factory((faker, ctx) =>
     faker?.internet
       .email({
@@ -49,7 +49,7 @@ export class User extends BaseEntity {
   )
   email: string;
 
-  @Column({ type: 'varchar', nullable: false, unique: true })
+  @Column({ type: 'varchar', nullable: false })
   @Factory((faker, ctx) => ctx?.email.replace(/@.+/, '') + '_' + faker?.helpers.replaceSymbols())
   nickname: string;
 

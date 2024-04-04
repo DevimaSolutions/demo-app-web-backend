@@ -3,14 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { ValidationFieldsException } from '@/exceptions';
 import { errorMessages, successMessages } from '@/features/common';
 import { FilesService } from '@/features/files';
-import { ProfileUpdateRequest } from '@/features/profiles/dto';
-import { User, UserResponse, UsersRepository } from '@/features/users';
+import { ProfileChangePasswordRequest, ProfileUpdateRequest } from '@/features/profiles/dto';
+import { HasherService, User, UserResponse, UsersRepository } from '@/features/users';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly fileService: FilesService,
+    private readonly hasher: HasherService,
   ) {}
 
   async update(user: User, request: ProfileUpdateRequest) {
@@ -25,6 +26,20 @@ export class ProfilesService {
     const result = await this.usersRepository.getOneWithSkills(user.id);
 
     return new UserResponse(result);
+  }
+
+  async changePassword(user: User, request: ProfileChangePasswordRequest) {
+    if (user.password) {
+      const doPasswordsMatch = await this.hasher.compare(request.oldPassword, user.password);
+      if (!doPasswordsMatch) {
+        throw new ValidationFieldsException({ oldPassword: errorMessages.passwordInvalid });
+      }
+    }
+
+    user.password = await this.hasher.hash(request.newPassword);
+    await user.save();
+
+    return { message: successMessages.success };
   }
   async remove(id: string) {
     const user = await this.usersRepository.getOne(id);

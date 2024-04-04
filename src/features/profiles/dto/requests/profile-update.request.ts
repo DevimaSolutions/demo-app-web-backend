@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { DeepPartial } from 'typeorm';
 
 import { Gender } from '@/features/profiles/enums';
-import { HasherService, User } from '@/features/users';
+import { User } from '@/features/users';
 import { NameRequest } from '@/features/users/dto/requests/name.request';
 
 export class ProfileUpdateRequest {
@@ -21,12 +21,8 @@ export class ProfileUpdateRequest {
   @ApiPropertyOptional()
   phoneNumber?: string;
 
-  @ApiPropertyOptional()
-  password?: string;
-
   public async getData(): Promise<DeepPartial<User>> {
     return {
-      ...(await this.getHashedPassword()),
       ...this.getFieldObject('name'),
       ...this.getFieldObject('nickname'),
       profile: {
@@ -39,10 +35,5 @@ export class ProfileUpdateRequest {
 
   private getFieldObject<P extends keyof ProfileUpdateRequest>(key: P) {
     return this[key] ? { [key]: this[key] } : {};
-  }
-
-  private async getHashedPassword() {
-    const hasher = new HasherService();
-    return this.password ? { password: await hasher.hash(this.password) } : {};
   }
 }

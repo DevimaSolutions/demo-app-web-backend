@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 
-import { nicknameRegexp, passwordRegexp, validationMessages } from '@/features/common';
+import { nicknameRegexp } from '@/features/common';
 import { Gender, ProfileUpdateRequest } from '@/features/profiles';
 import { NameRequest } from '@/features/users/dto/requests/name.request';
 export const profileUpdateSchema = Joi.object<ProfileUpdateRequest>({
@@ -16,7 +16,4 @@ export const profileUpdateSchema = Joi.object<ProfileUpdateRequest>({
     .optional(),
   nickname: Joi.string().trim().max(255).pattern(nicknameRegexp).optional(),
   phoneNumber: Joi.string().trim().max(255).optional(),
-  password: Joi.string().trim().pattern(passwordRegexp).max(255).optional().messages({
-    'string.pattern.base': validationMessages.password,
-  }),
 });

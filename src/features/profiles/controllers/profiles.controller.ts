@@ -19,9 +19,9 @@ import { IRequestWithUser } from '@/features/auth/interfaces';
 import { MessageResponse } from '@/features/common';
 import { fileConstants } from '@/features/common';
 import { CreateFileRequest } from '@/features/files';
-import { ProfileUpdateRequest } from '@/features/profiles/dto';
+import { ProfileChangePasswordRequest, ProfileUpdateRequest } from '@/features/profiles/dto';
 import { ProfilesService } from '@/features/profiles/services';
-import { profileUpdateSchema } from '@/features/profiles/validations';
+import { profileChangePasswordSchema, profileUpdateSchema } from '@/features/profiles/validations';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Profile')
@@ -39,6 +39,18 @@ export class ProfilesController {
     @Body(new JoiValidationPipe(profileUpdateSchema)) request: ProfileUpdateRequest,
   ) {
     return this.profilesService.update(req.user, request);
+  }
+
+  @Patch('password/change')
+  @Authorized()
+  @ApiOperation({
+    summary: 'Profile password change',
+  })
+  async password(
+    @Req() req: IRequestWithUser,
+    @Body(new JoiValidationPipe(profileChangePasswordSchema)) request: ProfileChangePasswordRequest,
+  ): Promise<MessageResponse> {
+    return this.profilesService.changePassword(req.user, request);
   }
 
   @Post('/avatar/upload')
