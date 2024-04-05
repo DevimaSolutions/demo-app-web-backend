@@ -3,17 +3,11 @@ import * as Joi from 'joi';
 import { passwordRegexp, validationMessages } from '@/features/common';
 import { ProfileChangePasswordRequest } from '@/features/profiles';
 export const profileChangePasswordSchema = Joi.object<ProfileChangePasswordRequest>({
-  oldPassword: Joi.string().trim().max(255).required().messages({
+  password: Joi.string().trim().pattern(passwordRegexp).required().max(255).messages({
     'string.pattern.base': validationMessages.password,
   }),
-  newPassword: Joi.string()
-    .trim()
-    .pattern(passwordRegexp)
-    .disallow(Joi.ref('oldPassword'))
-    .max(255)
+  confirmPassword: Joi.string()
+    .equal(Joi.ref('password'))
     .required()
-    .messages({
-      'string.pattern.base': validationMessages.password,
-      'any.invalid': validationMessages.passwordMustBeDifferent,
-    }),
+    .messages({ 'any.only': validationMessages.passwordDontMatch }),
 });

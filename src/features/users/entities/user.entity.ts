@@ -3,7 +3,6 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   OneToMany,
   OneToOne,
@@ -37,7 +36,7 @@ export class User extends BaseEntity {
   @Factory((faker) => ({ first: faker?.person.firstName(), last: faker?.person.lastName() }))
   name: Name;
 
-  @Column()
+  @Column({ unique: true })
   @Factory((faker, ctx) =>
     faker?.internet
       .email({
@@ -49,7 +48,7 @@ export class User extends BaseEntity {
   )
   email: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ unique: true })
   @Factory((faker, ctx) => ctx?.email.replace(/@.+/, '') + '_' + faker?.helpers.replaceSymbols())
   nickname: string;
 
@@ -121,9 +120,6 @@ export class User extends BaseEntity {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
-  deletedAt: Date | null;
 
   hasSocial(socialId: string | undefined, type: SocialType) {
     return this.socials.find((item) => item.socialId === socialId && item.type === type);

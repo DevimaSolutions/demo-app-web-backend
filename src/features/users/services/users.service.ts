@@ -51,7 +51,7 @@ export class UsersService {
   async remove(id: string) {
     const entity = await this.usersRepository.getOne(id);
 
-    await this.usersRepository.softRemove(entity);
+    await this.usersRepository.remove(entity);
   }
 
   private async validateUnique(

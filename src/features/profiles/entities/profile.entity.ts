@@ -1,12 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 
 import { FileEntity } from '@/features/files/entities';
 import { Gender, ProfileType, LearningPace } from '@/features/profiles/enums';
@@ -52,7 +44,4 @@ export class Profile extends BaseEntity {
   })
   @JoinColumn({ name: 'file_id' })
   profileImage: FileEntity | null;
-
-  @DeleteDateColumn({ name: 'deleted_at', nullable: true, default: null })
-  deletedAt: Date | null;
 }

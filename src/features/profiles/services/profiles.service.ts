@@ -29,14 +29,7 @@ export class ProfilesService {
   }
 
   async changePassword(user: User, request: ProfileChangePasswordRequest) {
-    if (user.password) {
-      const doPasswordsMatch = await this.hasher.compare(request.oldPassword, user.password);
-      if (!doPasswordsMatch) {
-        throw new ValidationFieldsException({ oldPassword: errorMessages.passwordInvalid });
-      }
-    }
-
-    user.password = await this.hasher.hash(request.newPassword);
+    user.password = await this.hasher.hash(request.password);
     await user.save();
 
     return { message: successMessages.success };
@@ -44,7 +37,7 @@ export class ProfilesService {
   async remove(id: string) {
     const user = await this.usersRepository.getOne(id);
 
-    await this.usersRepository.softRemove(user);
+    await this.usersRepository.remove(user);
     return { message: successMessages.removeProfile };
   }
 

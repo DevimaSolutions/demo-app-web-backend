@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ProfileChangePasswordRequest {
   @ApiProperty()
-  oldPassword: string;
+  password: string;
 
   @ApiProperty()
-  newPassword: string;
+  confirmPassword: string;
 }
