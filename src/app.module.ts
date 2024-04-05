@@ -10,6 +10,7 @@ import { loadConfig } from './config';
 import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
 import { FilesModule } from '@/features/files';
+import { FirebaseModule } from '@/features/firebase';
 import { MailerModule } from '@/features/mailer';
 import { PaymentsModule } from '@/features/payments';
 import { ProfilesModule } from '@/features/profiles';
@@ -50,6 +51,7 @@ import { WebhooksModule } from '@/features/webhooks';
     PaymentsModule,
     SubscriptionsModule,
     WebhooksModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [

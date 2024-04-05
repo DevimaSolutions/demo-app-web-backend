@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import configureSwagger from './config/swagger.config';
 import { initializeTransactionalContext } from './features/common/transaction.util';
+import { FirebaseService } from './features/firebase';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -11,6 +12,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
   });
+
+  const firebaseService = app.get(FirebaseService);
+
+  await firebaseService.initializeFirebaseAdmin();
 
   const config = app.get(ConfigService);
 
