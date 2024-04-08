@@ -41,7 +41,7 @@ export class ProfilesController {
     return this.profilesService.update(req.user, request);
   }
 
-  @Patch('password/change')
+  @Patch('password')
   @Authorized()
   @ApiOperation({
     summary: 'Profile password change',
