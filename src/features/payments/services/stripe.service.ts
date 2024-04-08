@@ -7,7 +7,7 @@ import { User } from '@/features/users';
 
 @Injectable()
 export class StripeService {
-  private stripe;
+  private stripe: Stripe;
 
   constructor(private readonly config: ConfigService) {
     const { apiKey, apiVersion } = config.get('stripe');

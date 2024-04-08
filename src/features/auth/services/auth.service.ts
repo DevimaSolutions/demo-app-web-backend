@@ -54,7 +54,7 @@ export class AuthService {
 
   async validateUserPayload(payload: IJwtPayload): Promise<User | null> {
     try {
-      return await this.usersRepository.getOneWithActiveSub(payload.sub);
+      return await this.usersRepository.getOneWithActiveSubscription(payload.sub);
     } catch (e) {
       if (e instanceof NotFoundException) {
         // User was not found

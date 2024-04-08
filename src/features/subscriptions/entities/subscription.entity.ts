@@ -23,7 +23,7 @@ export class Subscription extends BaseEntity {
   @PrimaryColumn({ type: 'uuid', generated: 'uuid' })
   id: string;
 
-  @ManyToOne(() => User, (user) => user.profile, {
+  @ManyToOne(() => User, (user) => user.subscriptions, {
     onDelete: 'CASCADE',
     nullable: false,
   })

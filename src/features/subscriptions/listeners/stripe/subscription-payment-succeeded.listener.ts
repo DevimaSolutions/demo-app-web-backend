@@ -59,14 +59,7 @@ export class SubscriptionPaymentSucceededListener {
           default_payment_method: paymentIntent.payment_method as string,
           expand: ['items.data.plan.product'],
         });
-
-        // console.log('Default payment method set for subscription:' + paymentIntent.payment_method);
-      } catch (err) {
-        // console.log(err);
-        // console.log(
-        //   `⚠️  Falied to update the default payment method for subscription: ${subscriptionId}`,
-        // );
-      }
+      } catch (_err) {}
     }
     return subscription;
   }

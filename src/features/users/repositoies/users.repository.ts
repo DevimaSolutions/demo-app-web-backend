@@ -98,7 +98,7 @@ export class UsersRepository extends BaseRepository<User> {
     }
   }
 
-  async getOneWithActiveSub(id: string) {
+  async getOneWithActiveSubscription(id: string) {
     return this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
