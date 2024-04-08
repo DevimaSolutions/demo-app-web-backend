@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommandModule } from 'nestjs-command';
 
@@ -10,12 +11,14 @@ import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
 import { FilesModule } from '@/features/files';
 import { MailerModule } from '@/features/mailer';
+import { PaymentsModule } from '@/features/payments';
 import { ProfilesModule } from '@/features/profiles';
 import { SeederModule, SeederCommand } from '@/features/seeder';
 import { seederConfig } from '@/features/seeder/seeders';
 import { SoftSkillsModule } from '@/features/soft-skills';
 import { SubscriptionsModule } from '@/features/subscriptions';
 import { UserCommand, UsersModule } from '@/features/users';
+import { WebhooksModule } from '@/features/webhooks';
 
 // TODO: Add global filter to return success object
 // on empty response with status code 200
@@ -35,6 +38,7 @@ import { UserCommand, UsersModule } from '@/features/users';
       }),
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     AuthModule,
     UsersModule,
     ProfilesModule,
@@ -43,7 +47,9 @@ import { UserCommand, UsersModule } from '@/features/users';
     SeederModule.forRoot(seederConfig),
     FilesModule,
     SoftSkillsModule,
+    PaymentsModule,
     SubscriptionsModule,
+    WebhooksModule,
   ],
   controllers: [AppController],
   providers: [

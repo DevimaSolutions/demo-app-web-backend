@@ -1,43 +1,80 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import Stripe from 'stripe';
 
-import { successMessages } from '@/features/common';
+import { errorMessages, successMessages } from '@/features/common';
+import { StripeService } from '@/features/payments/services/stripe.service';
 import {
-  CreateSubscriptionRequest,
-  SubscriptionResponse,
-  UpdateSubscriptionRequest,
+  StripeCreateSubscriptionResponse,
+  StripeCreateSubscriptionSessionRequest,
+  StripeSubscriptionResponse,
 } from '@/features/subscriptions';
-import { SubscriptionsRepository } from '@/features/subscriptions/repositoies';
+import { StripeSubscriptionSessionResponse } from '@/features/subscriptions/dto/responses/stripe-subscription-session.response';
+import { SubscriptionPaymentMethod, SubscriptionType } from '@/features/subscriptions/enums';
+import { User } from '@/features/users';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private readonly subscriptionsRepository: SubscriptionsRepository) {}
+  constructor(private readonly stripe: StripeService) {}
 
-  async create(request: CreateSubscriptionRequest) {
-    const subscription = await this.subscriptionsRepository.save(request);
-    return new SubscriptionResponse(subscription);
+  async create(user: User, priceId: string) {
+    const price = await this.stripe.priceRetrieve(priceId);
+
+    if (
+      user.findActiveSubscriptionType(
+        (price.product as Stripe.Product).metadata.type as SubscriptionType,
+      )
+    ) {
+      throw new BadRequestException(errorMessages.subscriptionIsActive);
+    }
+    const customer = await this.stripe.findOrCreateCustomer(user.name.full, user.email);
+
+    const subscription = await this.stripe.subscriptionCreate(user.id, customer.id, price.id);
+
+    const clientSecret = (
+      (subscription.latest_invoice as Stripe.Invoice).payment_intent as Stripe.PaymentIntent
+    ).client_secret as string;
+    return new StripeCreateSubscriptionResponse(subscription.id, clientSecret);
+  }
+
+  async createSession(user: User, request: StripeCreateSubscriptionSessionRequest) {
+    const price = await this.stripe.priceRetrieve(request.stripPriceId);
+
+    if (
+      user.findActiveSubscriptionType(
+        (price.product as Stripe.Product).metadata.type as SubscriptionType,
+      )
+    ) {
+      throw new BadRequestException(errorMessages.subscriptionIsActive);
+    }
+
+    const session = await this.stripe.createSession(user, request);
+
+    if (!session.url) {
+      throw new BadRequestException();
+    }
+    return new StripeSubscriptionSessionResponse(session.url);
+  }
+
+  async cancel(user: User, priceId: string) {
+    const price = await this.stripe.priceRetrieve(priceId);
+    const subscription = user.findActiveSubscriptionType(
+      (price.product as Stripe.Product).metadata.type as SubscriptionType,
+    );
+    if (
+      !subscription ||
+      subscription.paymentMethod !== SubscriptionPaymentMethod.Stripe ||
+      !subscription.metadata?.subscriptionId
+    ) {
+      throw new NotFoundException();
+    }
+
+    await this.stripe.subscriptionCancel(subscription.metadata.subscriptionId);
+
+    return { message: successMessages.success };
   }
 
   async findAll() {
-    const subscriptions = await this.subscriptionsRepository.find();
-
-    return subscriptions.map((subscription) => new SubscriptionResponse(subscription));
-  }
-
-  async findOne(id: string) {
-    const subscription = await this.subscriptionsRepository.getOne(id);
-    return new SubscriptionResponse(subscription);
-  }
-
-  async update(id: string, request: UpdateSubscriptionRequest) {
-    const subscription = await this.subscriptionsRepository.getOne(id);
-    await this.subscriptionsRepository.update(id, request);
-    return new SubscriptionResponse(subscription);
-  }
-
-  async remove(id: string) {
-    const subscription = await this.subscriptionsRepository.getOne(id);
-
-    await this.subscriptionsRepository.softRemove(subscription);
-    return { message: successMessages.success };
+    const { data } = await this.stripe.getPricesList();
+    return data.map((subscription) => new StripeSubscriptionResponse(subscription));
   }
 }

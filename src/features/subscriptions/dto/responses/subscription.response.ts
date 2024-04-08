@@ -1,12 +1,14 @@
-import { ApiProperty, ApiHideProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-import { Subscription } from '@/features/subscriptions';
-import { SubscriptionType } from '@/features/subscriptions/enums/subscription-type.enum';
+import { Subscription } from '@/features/subscriptions/entities';
 
 export class SubscriptionResponse {
   constructor(subscription: Subscription) {
-    Object.assign(this, subscription);
+    this.id = subscription.id;
+    this.name = subscription.name;
+    this.description = subscription.description;
+    this.startAt = subscription.startAt;
+    this.endAt = subscription.endAt;
   }
 
   @ApiProperty()
@@ -15,22 +17,12 @@ export class SubscriptionResponse {
   @ApiProperty()
   name: string;
 
-  @ApiProperty({ type: 'number', format: 'float' })
-  price: number;
+  @ApiProperty({ type: 'string', nullable: true })
+  description: string | null;
 
   @ApiProperty()
-  description: string;
-
-  @ApiProperty({ enum: SubscriptionType })
-  type: SubscriptionType;
+  startAt: Date;
 
   @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiHideProperty()
-  @Exclude()
-  deletedAt: Date;
+  endAt: Date;
 }

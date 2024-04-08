@@ -24,7 +24,7 @@ import {
   signupSchema,
 } from '@/features/auth/validations';
 import { MessageResponse } from '@/features/common';
-import { UserResponse } from '@/features/users';
+import { UserProfileResponse } from '@/features/profiles/dto/responses';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Auth')
@@ -121,6 +121,6 @@ export class AuthController {
     summary: 'Get the currently logged user.',
   })
   getProfile(@Req() req: IRequestWithUser) {
-    return new UserResponse(req.user);
+    return new UserProfileResponse(req.user);
   }
 }

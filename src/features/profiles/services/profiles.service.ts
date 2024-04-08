@@ -23,7 +23,7 @@ export class ProfilesService {
       throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
     }
     await this.usersRepository.save(this.usersRepository.merge(user, data));
-    const result = await this.usersRepository.getOneWithSkills(user.id);
+    const result = await this.usersRepository.getOne(user.id);
 
     return new UserResponse(result);
   }

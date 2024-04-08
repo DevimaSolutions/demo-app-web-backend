@@ -16,6 +16,8 @@ import { UserProgress } from './user-progress.entity';
 import { UserRole, UserStatus } from '@/features/auth/enums';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
+import { Subscription } from '@/features/subscriptions/entities/subscription.entity';
+import { SubscriptionType } from '@/features/subscriptions/enums';
 import { SocialType } from '@/features/users';
 import { UserSocials } from '@/features/users/entities/user-socials.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
@@ -78,6 +80,13 @@ export class User extends BaseEntity {
   })
   progress: UserProgress;
 
+  @OneToMany(() => Subscription, (subscription) => subscription.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  subscriptions: Subscription[];
+
   @OneToMany(() => UserSocials, (socials) => socials.user, {
     cascade: true,
   })
@@ -125,6 +134,10 @@ export class User extends BaseEntity {
     return this.socials.find((item) => item.socialId === socialId && item.type === type);
   }
 
+  getSocialByType(type: SocialType) {
+    return this.socials.find((item) => item.type === type);
+  }
+
   get isBlocked() {
     return this.status === UserStatus.Blocked;
   }
@@ -143,5 +156,11 @@ export class User extends BaseEntity {
 
   get isAdmin() {
     return this.role === UserRole.Admin;
+  }
+
+  findActiveSubscriptionType(type: SubscriptionType = SubscriptionType.Premium) {
+    return this.subscriptions?.find(
+      (subscription) => subscription.type === type && subscription.isActive,
+    );
   }
 }

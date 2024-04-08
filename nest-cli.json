@@ -6,6 +6,8 @@
       {
         "name": "@nestjs/swagger",
         "options": {
+          "dtoFileNameSuffix": [
+            ".request.ts", ".response.ts", ".dto.ts", ".entity.ts"],
           "classValidatorShim": false
         }
       }

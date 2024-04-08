@@ -98,6 +98,15 @@ export class UsersRepository extends BaseRepository<User> {
     }
   }
 
+  async getOneWithActiveSub(id: string) {
+    return this.createQueryBuilder('u')
+      .leftJoinAndSelect('u.profile', 'profile')
+      .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.subscriptions', 'subscriptions', 'end_at >= now()')
+      .where({ id })
+      .getOne();
+  }
+
   async findActiveUserByEmail(email: string, relations?: FindOptionsRelations<User>) {
     return this.findOne({
       where: { email, status: Not(UserStatus.Blocked) },

@@ -8,7 +8,9 @@ import { initializeTransactionalContext } from './features/common/transaction.ut
 async function bootstrap() {
   initializeTransactionalContext();
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    rawBody: true,
+  });
 
   const config = app.get(ConfigService);
 
