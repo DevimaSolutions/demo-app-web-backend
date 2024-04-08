@@ -12,10 +12,10 @@ export class UserProgress extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'int', nullable: true, default: 1 })
+  @Column({ type: 'int', nullable: false, default: 1 })
   level: number;
 
-  @Column({ type: 'int', nullable: true, default: 1000 })
+  @Column({ type: 'int', nullable: false, default: 1000 })
   experience: number;
 
   @OneToOne(() => User, (user) => user.progress, {
