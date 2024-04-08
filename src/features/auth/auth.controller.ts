@@ -24,13 +24,17 @@ import {
   signupSchema,
 } from '@/features/auth/validations';
 import { MessageResponse } from '@/features/common';
+import { FirebaseService } from '@/features/firebase';
 import { UserProfileResponse } from '@/features/profiles/dto/responses';
 import { JoiValidationPipe } from '@/pipes';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly firebaseService: FirebaseService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
@@ -45,6 +49,7 @@ export class AuthController {
   async signUp(@Body(new JoiValidationPipe(signupSchema)) request: SignUpRequest) {
     return this.authService.signUp(request);
   }
+
   @Post('confirm/email')
   @Authorized(UserStatus.Pending)
   @ApiOperation({
@@ -122,5 +127,12 @@ export class AuthController {
   })
   getProfile(@Req() req: IRequestWithUser) {
     return new UserProfileResponse(req.user);
+  }
+
+  @ApiOperation({ description: 'Get firebase authorization token.' })
+  @Authorized(UserStatus.Pending, UserStatus.Verified, UserStatus.Active)
+  @Get('firebase/token')
+  getFirebaseCustomToken(@Req() req: IRequestWithUser) {
+    return this.firebaseService.getCustomToken(req.user.id);
   }
 }
