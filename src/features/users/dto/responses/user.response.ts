@@ -54,10 +54,10 @@ export class UserResponse {
   @ApiProperty({ type: FileResponse, nullable: true })
   avatar: FileResponse | null;
 
-  @ApiProperty({ type: 'number' })
+  @ApiProperty({ type: 'number', nullable: true })
   level: number | null;
 
-  @ApiProperty({ type: 'number' })
+  @ApiProperty({ type: 'number', nullable: true })
   experience: number | null;
 
   @ApiProperty()
