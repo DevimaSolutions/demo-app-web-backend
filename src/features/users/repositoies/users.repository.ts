@@ -102,6 +102,7 @@ export class UsersRepository extends BaseRepository<User> {
     return this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.progress', 'progress')
       .leftJoinAndSelect('u.subscriptions', 'subscriptions', 'end_at >= now()')
       .where({ id })
       .getOne();
@@ -127,6 +128,7 @@ export class UsersRepository extends BaseRepository<User> {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
+      .leftJoinAndSelect('u.progress', 'progress')
       .andWhere(
         new Brackets((qb) => {
           qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
