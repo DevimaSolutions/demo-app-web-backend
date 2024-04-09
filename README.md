@@ -39,7 +39,6 @@ $ yarn setup
 Now you have `.env` file in working directory
 Fill missing values according to the comments before running the project
 
-
 Now you can apply migrations
 
 ```bash
@@ -51,7 +50,6 @@ Now you can create user
 ```bash
 $ yarn command user:create <email> <password>
 ```
-
 
 ## After pulling new changes
 
@@ -82,7 +80,7 @@ $ yarn start:prod
 ## API documentation
 
 Swagger API is running on the `/docs` route of the application.
-Swagger will be enabled if you set `ENABLE_SWAGGER=true` env variable. 
+Swagger will be enabled if you set `ENABLE_SWAGGER=true` env variable.
 
 ## Test
 
@@ -102,6 +100,11 @@ $ yarn test:cov
 1. Do not use absolute imports in `*.entity.ts` and migration files. TypeORM cli will not be able to resolve absolute path imports.
 
 2. Do not use feature-level barrel file imports in `*.entity.ts` and migration files. Usually these files require dependencies with absolute path imports. TypeORM cli will not be able to resolve absolute path imports.
+
+## Firebase CLI
+
+To use Firebase CLI features please go to libs/firebase in the root of the project.
+[See details here](https://firebase.google.com/docs/functions/get-started?gen=2nd)
 
 ## Support
 
