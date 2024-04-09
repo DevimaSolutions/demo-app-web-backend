@@ -11,7 +11,6 @@ const errorMessages = {
     "We couldn't find an account matching the email and password you entered. Please check your email and password and try again.",
   invalidPassword: 'Invalid password.',
   subscriptionIsActive: 'For this user, the current subscription is still active.',
-  firebaseTokenGenerateError: 'Generate firebase authorization token error.',
 };
 
 export default errorMessages;
