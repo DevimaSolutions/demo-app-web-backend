@@ -18,8 +18,8 @@ export class UserResponse {
     this.age = user.profile?.age ?? null;
     this.gender = user.profile?.gender ?? null;
     this.avatar = user.profile?.profileImage ? new FileResponse(user.profile?.profileImage) : null;
-    this.level = user.progress?.level;
-    this.experience = user.progress?.experience % 1000; // get excess experience
+    this.level = user.progress?.level ?? null;
+    this.experience = user.progress?.experience % 1000 ?? null; // get excess experience
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
   }
@@ -55,10 +55,10 @@ export class UserResponse {
   avatar: FileResponse | null;
 
   @ApiProperty({ type: 'number' })
-  level: number;
+  level: number | null;
 
   @ApiProperty({ type: 'number' })
-  experience: number;
+  experience: number | null;
 
   @ApiProperty()
   createdAt: Date;
