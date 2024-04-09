@@ -88,7 +88,7 @@ export class AuthService {
 
     const entity = this.usersRepository.create({
       email,
-      nickname: this.hasher.generateRandomNicknameFromEmail(email),
+      username: this.hasher.generateRandomUsernameFromEmail(email),
       progress: new UserProgress({}),
     });
     entity.password = await this.hasher.hash(password);
@@ -122,7 +122,7 @@ export class AuthService {
       await this.mailerService.verifyMail(
         user.email,
         verifyToken.token as string,
-        user?.name.full ?? user.email,
+        user?.name ?? user.email,
       );
     }
     return { message: successMessages.emailSent };
@@ -175,7 +175,7 @@ export class AuthService {
           this.usersRepository.merge(user, { tokens: [verifyToken] });
           await user.save();
 
-          await this.mailerService.sendForgotPasswordEmail(email, token, user.name.full);
+          await this.mailerService.sendForgotPasswordEmail(email, token, user.name);
         }
       }
       return { message: successMessages.emailSent };

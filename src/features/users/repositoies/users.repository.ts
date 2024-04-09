@@ -5,6 +5,7 @@ import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
 import { UserStatus } from '@/features/auth';
 import { BaseRepository } from '@/features/common/base.repository';
+import { ProfileFriendsPaginateQuery } from '@/features/profiles';
 import { UserFriendResponse, UserPaginateQuery, UserResponse } from '@/features/users/dto';
 import { User } from '@/features/users/entities/user.entity';
 import { UsersToFriends } from '@/features/users/entities/users-to-friend.entity';
@@ -131,11 +132,11 @@ export class UsersRepository extends BaseRepository<User> {
       .leftJoinAndSelect('u.progress', 'progress')
       .andWhere(
         new Brackets((qb) => {
-          qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
+          qb.where('LOWER(name) LIKE :search', {
             search: `%${search}%`,
           })
             .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
-            .orWhere('LOWER(nickname) LIKE :search', { search: `%${search}%` });
+            .orWhere('LOWER(username) LIKE :search', { search: `%${search}%` });
         }),
       );
 
@@ -170,11 +171,11 @@ export class UsersRepository extends BaseRepository<User> {
       .andWhere({ status: UserStatus.Active })
       .andWhere(
         new Brackets((qb) => {
-          qb.where("CONCAT(LOWER(name_first), ' ', LOWER(name_last)) LIKE :search", {
+          qb.where('LOWER(name) LIKE :search', {
             search: `%${search}%`,
           })
             .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
-            .orWhere('LOWER(nickname) LIKE :search', { search: `%${search}%` });
+            .orWhere('LOWER(username) LIKE :search', { search: `%${search}%` });
         }),
       );
 
@@ -185,7 +186,10 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
-  async findAllFriendsPaginate(userId: string, { page, limit, search }: UserPaginateQuery) {
+  async findAllFriendsPaginate(
+    userId: string,
+    { page, limit, search, orderBy }: ProfileFriendsPaginateQuery,
+  ) {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
@@ -210,17 +214,18 @@ export class UsersRepository extends BaseRepository<User> {
       )
       .andWhere(
         new Brackets((qb) => {
-          qb.where("CONCAT(LOWER(u.name_first), ' ', LOWER(u.name_last)) LIKE :search", {
+          qb.where('LOWER(u.name) LIKE :search', {
             search: `%${search}%`,
           })
             .orWhere('LOWER(u.email) LIKE :search', {
               search: `%${search}%`,
             })
-            .orWhere('LOWER(u.nickname) LIKE :search', {
+            .orWhere('LOWER(u.username) LIKE :search', {
               search: `%${search}%`,
             });
         }),
-      );
+      )
+      .orderBy(orderBy);
 
     return this.paginateQueryBuilder(builder, {
       page,
@@ -235,9 +240,9 @@ export class UsersRepository extends BaseRepository<User> {
     });
   }
 
-  async existByNickname(nickname: string, excludeId: string | null = null) {
+  async existByUsername(username: string, excludeId: string | null = null) {
     return await this.exist({
-      where: { nickname, ...(excludeId ? { id: Not(excludeId) } : {}) },
+      where: { username, ...(excludeId ? { id: Not(excludeId) } : {}) },
     });
   }
 }

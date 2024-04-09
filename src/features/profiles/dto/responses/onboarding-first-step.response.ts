@@ -6,7 +6,7 @@ import { User } from '@/features/users';
 
 export class OnboardingFirstStepResponse {
   constructor(user: User) {
-    this.name = user.name.first;
+    this.name = user.name;
     this.age = user?.profile?.age ?? null;
     this.gender = user?.profile?.gender ?? null;
   }

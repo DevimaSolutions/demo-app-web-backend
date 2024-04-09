@@ -3,7 +3,7 @@ const errorMessages = {
   unexpectedToken: 'Unexpected token.',
   unexpectedCode: 'Unexpected code.',
   userExists: 'The user already exist.',
-  userNicknameExists: 'This nickname is already used.',
+  userUsernameExists: 'This username is already used.',
   onboardingAlreadyCompleted: 'The user has already completed onboarding.',
   emailNotVerified: 'Please verify your email address.',
   softSkillExist: 'Soft skill with the same name already exist.',

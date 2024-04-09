@@ -67,10 +67,10 @@ export class UsersService {
       }
     }
 
-    if (data.nickname) {
-      const exist = await this.usersRepository.existByNickname(data.nickname, id);
+    if (data.username) {
+      const exist = await this.usersRepository.existByUsername(data.username, id);
       if (exist) {
-        throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
+        throw new ValidationFieldsException({ username: errorMessages.userUsernameExists });
       }
     }
 

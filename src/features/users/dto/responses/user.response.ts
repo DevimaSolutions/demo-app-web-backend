@@ -4,7 +4,6 @@ import { UserRole, UserStatus } from '@/features/auth';
 import { FileResponse } from '@/features/files';
 import { Gender } from '@/features/profiles/enums';
 import { User } from '@/features/users';
-import { Name } from '@/features/users/entities/name.embedded';
 
 export class UserResponse {
   constructor(user: User) {
@@ -12,7 +11,7 @@ export class UserResponse {
     this.name = user.name;
     this.phoneNumber = user.profile?.phoneNumber ?? null;
     this.email = user.email;
-    this.nickname = user.nickname;
+    this.username = user.username;
     this.role = user.role;
     this.status = user.status;
     this.age = user.profile?.age ?? null;
@@ -28,7 +27,7 @@ export class UserResponse {
   id: string;
 
   @ApiProperty()
-  name: Name;
+  name: string;
 
   @ApiProperty({ type: 'string', nullable: true })
   phoneNumber: string | null;
@@ -37,7 +36,7 @@ export class UserResponse {
   email: string;
 
   @ApiProperty()
-  nickname: string;
+  username: string;
 
   @ApiProperty({ type: 'number', nullable: true })
   age: number | null;

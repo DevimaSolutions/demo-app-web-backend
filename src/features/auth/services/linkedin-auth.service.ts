@@ -100,11 +100,11 @@ export class LinkedinAuthService {
 
     return this.usersRepository.save({
       email,
-      name: {
-        first: given_name ?? email.replace(/@.+/, ''),
-        last: family_name ?? '',
-      },
-      nickname: this.hasher.generateRandomNicknameFromEmail(email),
+      name:
+        given_name || family_name
+          ? `${given_name} ${family_name}`.trim()
+          : email.replace(/@.+/, ''),
+      username: this.hasher.generateRandomUsernameFromEmail(email),
       status: UserStatus.Verified,
       role: UserRole.User,
       emailVerified: new Date(),

@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Name } from './name.embedded';
 import { UserProgress } from './user-progress.entity';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
@@ -34,16 +33,16 @@ export class User extends BaseEntity {
   @PrimaryColumn({ type: 'uuid', generated: 'uuid' })
   id: string;
 
-  @Column(() => Name, { prefix: 'name' })
-  @Factory((faker) => ({ first: faker?.person.firstName(), last: faker?.person.lastName() }))
-  name: Name;
+  @Column({ default: '' })
+  @Factory((faker) => `${faker.person.firstName()} ${faker.person.lastName()}`)
+  name: string;
 
   @Column({ unique: true })
-  @Factory((faker, ctx) =>
-    faker?.internet
+  @Factory<User>((faker, ctx) =>
+    faker.internet
       .email({
-        firstName: ctx?.name.first ?? faker?.person.firstName(),
-        lastName: ctx?.name.last ?? faker?.person.lastName(),
+        firstName: ctx.name?.split(' ')?.[0] ?? faker.person.firstName(),
+        lastName: ctx.name?.split(' ')?.[1] ?? faker.person.lastName(),
         provider: 'shaper.us',
       })
       .toLowerCase(),
@@ -51,20 +50,22 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({ unique: true })
-  @Factory((faker, ctx) => ctx?.email.replace(/@.+/, '') + '_' + faker?.helpers.replaceSymbols())
-  nickname: string;
+  @Factory<User>(
+    (faker, ctx) => ctx.email?.replace(/@.+/, '') + '_' + faker.helpers.replaceSymbols(),
+  )
+  username: string;
 
   @Column('varchar', { nullable: true })
   @Exclude()
-  @Factory((_, ctx) => ctx?.password ?? null)
+  @Factory<User>((_, ctx) => ctx.password ?? null)
   password: string | null;
 
   @Column({ default: UserRole.User })
-  @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserRole)))
+  @Factory((faker) => faker.helpers.arrayElement(Object.values(UserRole)))
   role: UserRole;
 
   @Column({ default: UserStatus.Pending })
-  @Factory((faker) => faker?.helpers.arrayElement(Object.values(UserStatus)))
+  @Factory((faker) => faker.helpers.arrayElement([UserStatus.Pending, UserStatus.Active]))
   status: UserStatus;
 
   @OneToOne(() => Profile, (profile) => profile.user, {
@@ -78,6 +79,7 @@ export class User extends BaseEntity {
     eager: true,
     cascade: true,
   })
+  @Factory((_, ctx) => ctx.progress ?? new UserProgress({}))
   progress: UserProgress;
 
   @OneToMany(() => Subscription, (subscription) => subscription.user, {
@@ -114,7 +116,7 @@ export class User extends BaseEntity {
   tokens: UsersVerificationToken[];
 
   @Column({ type: 'timestamp', name: 'email_verified', nullable: true, default: null })
-  @Factory((faker) => faker?.helpers.arrayElement([null, faker?.date.past()]))
+  @Factory((faker) => faker.helpers.arrayElement([null, faker.date.past()]))
   emailVerified: Date | null;
 
   @CreateDateColumn({

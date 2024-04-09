@@ -17,10 +17,10 @@ export class ProfilesService {
   async update(user: User, request: ProfileUpdateRequest) {
     const data = await request.getData();
     if (
-      request.nickname &&
-      (await this.usersRepository.existByNickname(request.nickname, user.id))
+      request.username &&
+      (await this.usersRepository.existByUsername(request.username, user.id))
     ) {
-      throw new ValidationFieldsException({ nickname: errorMessages.userNicknameExists });
+      throw new ValidationFieldsException({ username: errorMessages.userUsernameExists });
     }
     await this.usersRepository.save(this.usersRepository.merge(user, data));
     const result = await this.usersRepository.getOne(user.id);

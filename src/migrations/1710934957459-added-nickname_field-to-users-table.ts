@@ -15,7 +15,7 @@ export class AddedNicknameFieldToUsersTable1710934957459 implements MigrationInt
 
     for (const user of users) {
       await queryRunner.query(`UPDATE "users" SET nickname = $1 WHERE id = $2`, [
-        hasher.generateRandomNicknameFromEmail(user.email),
+        hasher.generateRandomUsernameFromEmail(user.email),
         user.id,
       ]);
     }

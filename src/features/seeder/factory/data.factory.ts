@@ -1,30 +1,29 @@
 import { faker } from '@faker-js/faker';
+import { plainToInstance } from 'class-transformer';
+import { ClassConstructor } from 'class-transformer/types/interfaces';
+import { DeepPartial } from 'typeorm';
 
-import {
-  IFactoryValue,
-  IFactory,
-  IPropertyMetadata,
-  FactoryMetadataStorage,
-} from '@/features/seeder';
+import { IFactory, IPropertyMetadata, FactoryMetadataStorage } from '@/features/seeder';
 
 export class DataFactory {
-  static createForClass<E>(target: E): IFactory {
+  static createForClass<E>(target: ClassConstructor<E>): IFactory<E> {
     if (!target) {
       throw new Error(
         `Target class "${target}" passed in to the "TemplateFactory#createForClass()" method is "undefined".`,
       );
     }
 
-    const properties = FactoryMetadataStorage.getPropertyMetadataByTarget(target);
+    const properties = FactoryMetadataStorage<E>().getPropertyMetadataByTarget(target);
 
     return {
-      generate: (
-        count: number,
-        values: Record<string, any> = {},
-      ): Record<string, IFactoryValue>[] => {
-        const ret = Array<Record<string, IFactoryValue>>();
+      generate: (count: number, values: DeepPartial<E> = {} as E): E[] => {
+        const ret = Array<E>();
         for (let i = 0; i < count; i++) {
-          ret.push(this.generate(properties, values));
+          ret.push(
+            plainToInstance(target, this.generate<E>(properties, values), {
+              ignoreDecorators: true,
+            }),
+          );
         }
         return ret;
       },
@@ -33,8 +32,8 @@ export class DataFactory {
 
   private static generate<E>(
     properties: IPropertyMetadata<E>[],
-    values: Record<string, any>,
-  ): Record<string, IFactoryValue> {
+    values: DeepPartial<E>,
+  ): DeepPartial<E> {
     const ctx = { ...values };
     return properties.reduce(
       (r, p) => ({
@@ -42,7 +41,7 @@ export class DataFactory {
           typeof p.arg === 'function' ? p.arg(faker, ctx) : p.arg),
         ...r,
       }),
-      {},
+      {} as DeepPartial<E>,
     );
   }
 }

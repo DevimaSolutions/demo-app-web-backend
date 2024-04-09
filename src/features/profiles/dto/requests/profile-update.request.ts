@@ -3,14 +3,13 @@ import { DeepPartial } from 'typeorm';
 
 import { Gender } from '@/features/profiles/enums';
 import { User } from '@/features/users';
-import { NameRequest } from '@/features/users/dto/requests/name.request';
 
 export class ProfileUpdateRequest {
   @ApiPropertyOptional()
-  name?: NameRequest;
+  name?: string;
 
   @ApiPropertyOptional()
-  nickname?: string;
+  username?: string;
 
   @ApiPropertyOptional()
   age?: number;
@@ -24,7 +23,7 @@ export class ProfileUpdateRequest {
   public async getData(): Promise<DeepPartial<User>> {
     return {
       ...this.getFieldObject('name'),
-      ...this.getFieldObject('nickname'),
+      ...this.getFieldObject('username'),
       profile: {
         ...this.getFieldObject('age'),
         ...this.getFieldObject('gender'),

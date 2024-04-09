@@ -32,7 +32,7 @@ export class StripeService {
 
   async createSession(user: User, request: StripeCreateSubscriptionSessionRequest) {
     try {
-      const customer = await this.findOrCreateCustomer(user.name.full, user.email);
+      const customer = await this.findOrCreateCustomer(user.name, user.email);
 
       return await this.stripe.checkout.sessions.create({
         billing_address_collection: 'auto',

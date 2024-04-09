@@ -3,17 +3,16 @@ import { DeepPartial } from 'typeorm';
 
 import { UserRole, UserStatus } from '@/features/auth';
 import { HasherService, User } from '@/features/users';
-import { NamePartialRequest } from '@/features/users/dto/requests/name.request';
 
 export class UpdateUserRequest {
   @ApiPropertyOptional()
-  name?: NamePartialRequest;
+  name?: string;
 
   @ApiPropertyOptional({ type: 'string', format: 'email' })
   email?: string;
 
   @ApiPropertyOptional()
-  nickname?: string;
+  username?: string;
 
   @ApiPropertyOptional()
   password?: string;
@@ -29,7 +28,7 @@ export class UpdateUserRequest {
       ...(await this.getHashedPassword()),
       ...this.getFieldObject('name'),
       ...this.getFieldObject('email'),
-      ...this.getFieldObject('nickname'),
+      ...this.getFieldObject('username'),
       ...this.getFieldObject('role'),
       ...this.getFieldObject('status'),
     };

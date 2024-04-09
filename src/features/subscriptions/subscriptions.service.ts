@@ -26,7 +26,7 @@ export class SubscriptionsService {
     ) {
       throw new BadRequestException(errorMessages.subscriptionIsActive);
     }
-    const customer = await this.stripe.findOrCreateCustomer(user.name.full, user.email);
+    const customer = await this.stripe.findOrCreateCustomer(user.name, user.email);
 
     const subscription = await this.stripe.subscriptionCreate(user.id, customer.id, price.id);
 

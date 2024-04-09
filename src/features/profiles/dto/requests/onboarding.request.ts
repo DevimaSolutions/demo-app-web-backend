@@ -21,7 +21,7 @@ export class OnboardingRequest {
   public getData(userId: string, usersToSkills: { softSkillId: string }[]): DeepPartial<User> {
     const { name = null, ...rest } = this?.firstStep ?? {};
 
-    const user = name ? { name: { first: name }, usersToSkills } : { usersToSkills };
+    const user = name ? { name, usersToSkills } : { usersToSkills };
 
     return {
       ...user,
