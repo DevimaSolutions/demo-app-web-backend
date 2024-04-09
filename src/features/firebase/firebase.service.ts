@@ -14,7 +14,6 @@ export class FirebaseService {
           ? {
               // Do not recommeded. See here: https://firebase.google.com/docs/cloud-messaging/migrate-v1#linux-or-macos
               credential: admin.credential.cert('firebase-adminsdk.json'),
-              databaseURL: 'https://shapergap-default-rtdb.firebaseio.com', // TODO: do i need this?
             }
           : undefined,
       );
