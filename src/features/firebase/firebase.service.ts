@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import admin from 'firebase-admin';
 
+import { errorMessages } from '@/features/common';
 import { UsersService } from '@/features/users';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class FirebaseService {
         this.config.get('firebase.useCredentials')
           ? {
               credential: admin.credential.cert(
-                this.config.get('firebase.credentialsFilePath') as string,
+                this.config.get<string>('firebase.credentialsFilePath', ''),
               ),
             }
           : undefined,
@@ -30,7 +31,7 @@ export class FirebaseService {
     try {
       return await admin.auth().createCustomToken(user.id);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(errorMessages.firebaseTokenGenerateError);
     }
   }
 }
