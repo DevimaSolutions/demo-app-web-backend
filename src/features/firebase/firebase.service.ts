@@ -1,19 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import admin from 'firebase-admin';
 
 import { UsersService } from '@/features/users';
 
 @Injectable()
 export class FirebaseService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly config: ConfigService,
+  ) {}
 
   public initializeFirebaseAdmin() {
     if (!admin.apps.length) {
       admin.initializeApp(
-        process.env.NODE_ENV !== 'production'
+        this.config.get('firebase.useCredentials')
           ? {
-              // The file shoud contain service account credentials
-              credential: admin.credential.cert('firebase-adminsdk.json'),
+              credential: admin.credential.cert(
+                this.config.get('firebase.credentialsFilePath') as string,
+              ),
             }
           : undefined,
       );
