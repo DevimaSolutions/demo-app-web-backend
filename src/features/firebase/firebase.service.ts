@@ -12,7 +12,7 @@ export class FirebaseService {
       admin.initializeApp(
         process.env.NODE_ENV !== 'production'
           ? {
-              // Do not recommeded. See here: https://firebase.google.com/docs/cloud-messaging/migrate-v1#linux-or-macos
+              // The file shoud contain service account credentials
               credential: admin.credential.cert('firebase-adminsdk.json'),
             }
           : undefined,
