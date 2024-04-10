@@ -10,15 +10,17 @@ export const profileFriendsPaginationQuerySchema = paginationQuerySchema.concat(
       .valid(...Object.values(Order))
       .default(Order.Desc)
       .optional(),
-    sort: Joi.alternatives().try(
-      Joi.string()
-        .valid(...Object.values(QueryFriendsSort))
-        .optional()
-        .default([QueryFriendsSort.Level, QueryFriendsSort.Experience]),
-      Joi.array()
-        .items(Joi.string().valid(...Object.values(QueryFriendsSort)))
-        .default([QueryFriendsSort.Level, QueryFriendsSort.Experience])
-        .optional(),
-    ),
+    sort: Joi.alternatives()
+      .try(
+        Joi.string()
+          .valid(...Object.values(QueryFriendsSort))
+          .optional()
+          .default([QueryFriendsSort.Level, QueryFriendsSort.Experience]),
+        Joi.array()
+          .items(Joi.string().valid(...Object.values(QueryFriendsSort)))
+          .default([QueryFriendsSort.Level, QueryFriendsSort.Experience])
+          .optional(),
+      )
+      .default([QueryFriendsSort.Level, QueryFriendsSort.Experience]),
   }),
 );
