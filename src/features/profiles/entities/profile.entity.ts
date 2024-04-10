@@ -20,7 +20,7 @@ export class Profile extends BaseEntity {
   phoneNumber: string | null;
 
   @Column({ type: 'int', nullable: true })
-  @Factory<Profile>((faker) => faker.helpers.rangeToNumber({ min: 3, max: 50 }))
+  @Factory<Profile>((faker) => faker.helpers.rangeToNumber({ min: 13, max: 50 }))
   age: number | null;
 
   @Column({ type: 'enum', enum: Gender, nullable: true })
