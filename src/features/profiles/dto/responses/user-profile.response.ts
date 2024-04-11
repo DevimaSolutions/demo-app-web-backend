@@ -5,6 +5,7 @@ import { UserResponse } from '@/features/users/dto/responses/user.response';
 export class UserProfileResponse extends UserResponse {
   constructor(user: User) {
     super(user);
+    this.diamonds = user.diamonds;
     this.subscriptions =
       user.subscriptions
         ?.filter((subscription) => subscription.isActive)
@@ -12,6 +13,8 @@ export class UserProfileResponse extends UserResponse {
           return new SubscriptionResponse(subscription);
         }) ?? [];
   }
+
+  diamonds: number;
 
   subscriptions: SubscriptionResponse[] = [];
 }

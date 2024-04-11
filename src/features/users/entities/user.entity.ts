@@ -68,6 +68,9 @@ export class User extends BaseEntity {
   @Factory((faker) => faker.helpers.arrayElement([UserStatus.Pending, UserStatus.Active]))
   status: UserStatus;
 
+  @Column({ default: 0 })
+  diamonds: number;
+
   @OneToOne(() => Profile, (profile) => profile.user, {
     eager: true,
     nullable: true,
