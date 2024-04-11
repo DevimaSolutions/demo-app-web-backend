@@ -13,31 +13,37 @@ export class EnergyResponse {
 
   energy: number;
 
+  maxPoints: number;
+
+  recoveryMinutes: number;
+
   fullRecoveryIn: Date | null;
 
   private generateObject(entity: Energy | User) {
     const energy = entity instanceof User ? entity.energy : entity;
     const user = entity instanceof User ? entity : entity.user;
 
-    return {
-      userId: user.id,
-      energy: energy.energy,
-      fullRecoveryIn: this.calculateRecoveryTime(energy, user),
-    };
-  }
-
-  private calculateRecoveryTime(energy: Energy, user: User) {
     const hasPremium = user.findActiveSubscriptionType();
 
     const maxPoints = hasPremium ? energyConstants.maxPremiumPoints : energyConstants.maxPoints;
 
-    if (!energy.spentIn && energy.energy < maxPoints) {
-      return null;
-    }
-
     const recoveryMinutes = hasPremium
       ? energyConstants.recoveryPremiumMinutes
       : energyConstants.recoveryMinutes;
+
+    return {
+      userId: user.id,
+      energy: energy.energy,
+      recoveryMinutes,
+      maxPoints,
+      fullRecoveryIn: this.calculateRecoveryTime(energy, maxPoints, recoveryMinutes),
+    };
+  }
+
+  private calculateRecoveryTime(energy: Energy, maxPoints: number, recoveryMinutes: number) {
+    if (!energy.spentIn && energy.energy < maxPoints) {
+      return null;
+    }
 
     const multiple = maxPoints - energy.energy;
 
