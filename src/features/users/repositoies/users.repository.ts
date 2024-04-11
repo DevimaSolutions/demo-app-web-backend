@@ -188,7 +188,7 @@ export class UsersRepository extends BaseRepository<User> {
 
   async findAllFriendsPaginate(
     userId: string,
-    { page, limit, search, orderBy }: ProfileFriendsPaginateQuery,
+    { page, limit, search, orderedBy }: ProfileFriendsPaginateQuery,
   ) {
     const builder = this.createQueryBuilder('u')
       .leftJoinAndSelect('u.profile', 'profile')
@@ -225,7 +225,7 @@ export class UsersRepository extends BaseRepository<User> {
             });
         }),
       )
-      .orderBy(orderBy);
+      .orderBy(orderedBy);
 
     return this.paginateQueryBuilder(builder, {
       page,

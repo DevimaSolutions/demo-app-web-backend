@@ -1,26 +1,26 @@
 import * as Joi from 'joi';
 
-import { Order, paginationQuerySchema } from '@/features/common';
-import { ProfileFriendsPaginateQuery, QueryFriendsSort } from '@/features/profiles';
+import { OrderDirection, paginationQuerySchema } from '@/features/common';
+import { ProfileFriendsPaginateQuery, QueryFriendsOrderBy } from '@/features/profiles';
 
 export const profileFriendsPaginationQuerySchema = paginationQuerySchema.concat(
   Joi.object<ProfileFriendsPaginateQuery>({
     search: Joi.string().trim().default('').lowercase().optional(),
-    order: Joi.string()
-      .valid(...Object.values(Order))
-      .default(Order.Desc)
+    orderDirection: Joi.string()
+      .valid(...Object.values(OrderDirection))
+      .default(OrderDirection.Desc)
       .optional(),
-    sort: Joi.alternatives()
+    orderBy: Joi.alternatives()
       .try(
         Joi.string()
-          .valid(...Object.values(QueryFriendsSort))
+          .valid(...Object.values(QueryFriendsOrderBy))
           .optional()
-          .default([QueryFriendsSort.Level, QueryFriendsSort.Experience]),
+          .default([QueryFriendsOrderBy.Level, QueryFriendsOrderBy.Experience]),
         Joi.array()
-          .items(Joi.string().valid(...Object.values(QueryFriendsSort)))
-          .default([QueryFriendsSort.Level, QueryFriendsSort.Experience])
+          .items(Joi.string().valid(...Object.values(QueryFriendsOrderBy)))
+          .default([QueryFriendsOrderBy.Level, QueryFriendsOrderBy.Experience])
           .optional(),
       )
-      .default([QueryFriendsSort.Level, QueryFriendsSort.Experience]),
+      .default([QueryFriendsOrderBy.Level, QueryFriendsOrderBy.Experience]),
   }),
 );

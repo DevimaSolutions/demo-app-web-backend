@@ -1,4 +1,4 @@
-export enum QueryFriendsSort {
+export enum QueryFriendsOrderBy {
   Level = 'level',
   Experience = 'experience',
   Username = 'username',

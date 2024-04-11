@@ -1,16 +1,16 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-import { Order } from '@/features/common';
+import { OrderDirection } from '@/features/common';
 
 export class OrderQuery {
   @ApiPropertyOptional({
-    enum: Order,
-    default: Order.Desc,
+    enum: OrderDirection,
+    default: OrderDirection.Desc,
   })
-  order: Order = Order.Desc;
+  orderDirection: OrderDirection = OrderDirection.Desc;
 
   @ApiPropertyOptional({
     default: 'createdAt',
   })
-  sort: string | string[];
+  orderBy: string | string[];
 }
