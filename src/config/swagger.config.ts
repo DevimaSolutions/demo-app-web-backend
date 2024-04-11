@@ -44,7 +44,7 @@ const configureSwagger = (app: INestApplication, configService: ConfigService) =
 
   const swaggerUiRoute = 'docs';
 
-  SwaggerModule.setup(swaggerUiRoute, app, document);
+  SwaggerModule.setup(swaggerUiRoute, app, document, { swaggerOptions: { docExpansion: 'none' } });
 };
 
 export default configureSwagger;

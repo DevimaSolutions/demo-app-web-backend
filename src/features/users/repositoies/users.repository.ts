@@ -104,6 +104,7 @@ export class UsersRepository extends BaseRepository<User> {
       .leftJoinAndSelect('u.profile', 'profile')
       .leftJoinAndSelect('profile.profileImage', 'profileImage')
       .leftJoinAndSelect('u.progress', 'progress')
+      .leftJoinAndSelect('u.energy', 'energy')
       .leftJoinAndSelect('u.subscriptions', 'subscriptions', 'end_at >= now()')
       .where({ id })
       .getOne();

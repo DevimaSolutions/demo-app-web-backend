@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommandModule } from 'nestjs-command';
 
@@ -9,6 +10,7 @@ import { loadConfig } from './config';
 
 import { AppService, AppController } from '@/features/app';
 import { AuthModule } from '@/features/auth';
+import { EnergyModule } from '@/features/energy';
 import { FilesModule } from '@/features/files';
 import { FirebaseModule } from '@/features/firebase';
 import { MailerModule } from '@/features/mailer';
@@ -40,6 +42,7 @@ import { WebhooksModule } from '@/features/webhooks';
       inject: [ConfigService],
     }),
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     ProfilesModule,
@@ -52,6 +55,7 @@ import { WebhooksModule } from '@/features/webhooks';
     SubscriptionsModule,
     WebhooksModule,
     FirebaseModule,
+    EnergyModule,
   ],
   controllers: [AppController],
   providers: [

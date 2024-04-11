@@ -13,6 +13,7 @@ import {
 import { UserProgress } from './user-progress.entity';
 
 import { UserRole, UserStatus } from '@/features/auth/enums';
+import { Energy } from '@/features/energy/entities/energy.entity';
 import { Profile } from '@/features/profiles/entities';
 import { Factory } from '@/features/seeder';
 import { Subscription } from '@/features/subscriptions/entities/subscription.entity';
@@ -84,6 +85,13 @@ export class User extends BaseEntity {
   })
   @Factory((_, ctx) => ctx.progress ?? new UserProgress({}))
   progress: UserProgress;
+
+  @OneToOne(() => Energy, (energy) => energy.user, {
+    eager: true,
+    cascade: true,
+  })
+  @Factory((_, ctx) => ctx.energy ?? new Energy({}))
+  energy: Energy;
 
   @OneToMany(() => Subscription, (subscription) => subscription.user, {
     cascade: true,
