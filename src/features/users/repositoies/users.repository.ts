@@ -133,11 +133,11 @@ export class UsersRepository extends BaseRepository<User> {
       .leftJoinAndSelect('u.progress', 'progress')
       .andWhere(
         new Brackets((qb) => {
-          qb.where('LOWER(name) LIKE :search', {
+          qb.where('LOWER(u.name) LIKE :search', {
             search: `%${search}%`,
           })
-            .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
-            .orWhere('LOWER(username) LIKE :search', { search: `%${search}%` });
+            .orWhere('LOWER(u.email) LIKE :search', { search: `%${search}%` })
+            .orWhere('LOWER(u.username) LIKE :search', { search: `%${search}%` });
         }),
       );
 
@@ -169,14 +169,14 @@ export class UsersRepository extends BaseRepository<User> {
           .getQuery();
         return 'u.id NOT IN ' + subQuery;
       })
-      .andWhere({ status: UserStatus.Active })
+      .andWhere({ status: UserStatus.Active, id: Not(userId) })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('LOWER(name) LIKE :search', {
+          qb.where('LOWER(u.name) LIKE :search', {
             search: `%${search}%`,
           })
-            .orWhere('LOWER(email) LIKE :search', { search: `%${search}%` })
-            .orWhere('LOWER(username) LIKE :search', { search: `%${search}%` });
+            .orWhere('LOWER(u.email) LIKE :search', { search: `%${search}%` })
+            .orWhere('LOWER(u.username) LIKE :search', { search: `%${search}%` });
         }),
       );
 
