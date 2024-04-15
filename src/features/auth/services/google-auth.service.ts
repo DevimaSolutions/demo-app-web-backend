@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
 
 import { UserRole, UserStatus } from '@/features/auth';
+import { Energy } from '@/features/energy';
 import { HasherService, SocialType, UserResponse, UsersRepository } from '@/features/users';
 import { UserSocials } from '@/features/users/entities';
 import { UserProgress } from '@/features/users/entities/user-progress.entity';
@@ -82,6 +83,7 @@ export class GoogleAuthService {
       emailVerified: new Date(),
       socials: [new UserSocials({ socialId: id, type: SocialType.Google })],
       progress: new UserProgress({}),
+      energy: new Energy({}),
     });
   }
 

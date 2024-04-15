@@ -9,6 +9,7 @@ import { ValidationFieldsException } from '@/exceptions';
 import { JwtTokensResponse, SignUpRequest } from '@/features/auth/dto';
 import { IJwtPayload } from '@/features/auth/interfaces';
 import { errorMessages, successMessages } from '@/features/common';
+import { Energy } from '@/features/energy';
 import { MailerService } from '@/features/mailer';
 import {
   HasherService,
@@ -90,6 +91,7 @@ export class AuthService {
       email,
       username: this.hasher.generateRandomUsernameFromEmail(email),
       progress: new UserProgress({}),
+      energy: new Energy({}),
     });
     entity.password = await this.hasher.hash(password);
 
