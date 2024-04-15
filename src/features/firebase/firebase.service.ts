@@ -20,8 +20,12 @@ export class FirebaseService {
               credential: admin.credential.cert(
                 this.config.get<string>('firebase.credentialsFilePath', ''),
               ),
+              databaseURL: this.config.get<string>('firebase.databaseURL'),
             }
-          : undefined,
+          : {
+              credential: admin.credential.applicationDefault(),
+              databaseURL: this.config.get<string>('firebase.databaseURL'),
+            },
       );
     }
   }
