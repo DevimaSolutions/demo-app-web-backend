@@ -9,7 +9,7 @@ import { ValidationFieldsException } from '@/exceptions';
 import { JwtTokensResponse, SignUpRequest } from '@/features/auth/dto';
 import { IJwtPayload } from '@/features/auth/interfaces';
 import { errorMessages, successMessages } from '@/features/common';
-import { Energy } from '@/features/energy';
+import { Energy } from '@/features/energy/entities/energy.entity';
 import { MailerService } from '@/features/mailer';
 import {
   HasherService,

@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
 
 import { UserRole, UserStatus } from '@/features/auth';
-import { Energy } from '@/features/energy';
+import { Energy } from '@/features/energy/entities/energy.entity';
 import { HasherService, SocialType, UserResponse, UsersRepository } from '@/features/users';
 import { UserSocials } from '@/features/users/entities';
 import { UserProgress } from '@/features/users/entities/user-progress.entity';

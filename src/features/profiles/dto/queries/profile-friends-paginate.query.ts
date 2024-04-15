@@ -2,7 +2,7 @@ import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 
 import { OrderQuery } from '@/features/common/dto/queries/order.query';
 import { QueryFriendsOrderBy } from '@/features/profiles/enums/query-friends-order-by.enum';
-import { UserPaginateQuery } from '@/features/users';
+import { UserPaginateQuery } from '@/features/users/dto/queries/user-paginate.query';
 
 export class ProfileFriendsPaginateQuery extends IntersectionType(UserPaginateQuery, OrderQuery) {
   @ApiPropertyOptional({
