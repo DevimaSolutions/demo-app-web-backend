@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColum
 
 import { User } from '@/features/users/entities/user.entity';
 
-@Entity({ name: 'energy' })
+@Entity({ name: 'energies' })
 export class Energy extends BaseEntity {
   constructor(partial: Partial<Energy>) {
     super();

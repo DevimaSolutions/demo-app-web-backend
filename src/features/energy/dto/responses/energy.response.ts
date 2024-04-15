@@ -41,7 +41,7 @@ export class EnergyResponse {
   }
 
   private calculateRecoveryTime(energy: Energy, maxPoints: number, recoveryMinutes: number) {
-    if (!energy.spentIn && energy.energy < maxPoints) {
+    if (!energy.spentIn && energy.energy >= maxPoints) {
       return null;
     }
 
