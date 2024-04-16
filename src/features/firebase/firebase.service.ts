@@ -14,19 +14,16 @@ export class FirebaseService {
 
   public initializeFirebaseAdmin() {
     if (!admin.apps.length) {
-      admin.initializeApp(
-        this.config.get('firebase.useCredentials')
-          ? {
-              credential: admin.credential.cert(
-                this.config.get<string>('firebase.credentialsFilePath', ''),
-              ),
-              databaseURL: this.config.get<string>('firebase.databaseURL'),
-            }
-          : {
-              credential: admin.credential.applicationDefault(),
-              databaseURL: this.config.get<string>('firebase.databaseURL'),
-            },
-      );
+      if (this.config.get('firebase.useCredentials')) {
+        admin.initializeApp({
+          credential: admin.credential.cert(
+            this.config.get<string>('firebase.credentialsFilePath', ''),
+          ),
+          databaseURL: this.config.get<string>('firebase.databaseURL'),
+        });
+      } else {
+        admin.initializeApp();
+      }
     }
   }
 
