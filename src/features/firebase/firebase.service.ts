@@ -9,9 +9,19 @@ import { UsersService } from '@/features/users';
 @Injectable()
 export class FirebaseService {
   private clientSecretManager: SecretManagerServiceClient;
+  private useGoogleCloudSecret: boolean;
+  private credentialsFilePathOrSecretName: string;
+  private databaseURL: string;
 
   constructor(private readonly usersService: UsersService, private readonly config: ConfigService) {
     this.clientSecretManager = new SecretManagerServiceClient();
+
+    this.useGoogleCloudSecret = this.config.get<boolean>('firebase.useGoogleCloudSecret', false);
+    this.credentialsFilePathOrSecretName = this.config.get<string>(
+      'firebase.credentialsFilePathOrSecretName',
+      '',
+    );
+    this.databaseURL = this.config.get<string>('firebase.databaseURL', '');
   }
 
   // Access secret from Google Cloud Secret Manager
@@ -24,6 +34,11 @@ export class FirebaseService {
       const fullName = `projects/${projectId}/secrets/${name}/versions/${version}`;
       const [response] = await this.clientSecretManager.accessSecretVersion({ name: fullName });
       const payload = response.payload?.data?.toString();
+
+      if (payload) {
+        return JSON.parse(payload);
+      }
+
       return payload;
     } catch (error) {
       // TODO: add logger
@@ -35,17 +50,14 @@ export class FirebaseService {
     // TODO: add logger for unsuccessful initialization
     if (!admin.apps.length) {
       // Use Google Cloud Secret Manager to store credentials on Production
-      const cert =
-        process.env.NODE_ENV === 'production'
-          ? await this.accessGoogleCloudSecret(
-              this.config.get<string>('firebase.credentialsFilePath', ''),
-            )
-          : this.config.get<string>('firebase.credentialsFilePath', '');
+      const cert = this.useGoogleCloudSecret
+        ? await this.accessGoogleCloudSecret(this.credentialsFilePathOrSecretName)
+        : this.credentialsFilePathOrSecretName;
 
       if (cert) {
         admin.initializeApp({
           credential: admin.credential.cert(cert),
-          databaseURL: this.config.get<string>('firebase.databaseURL'),
+          databaseURL: this.databaseURL,
         });
       } else {
         throw new BadRequestException('Could not initialize Firebase Admin.');
