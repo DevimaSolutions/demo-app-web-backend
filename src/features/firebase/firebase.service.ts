@@ -13,17 +13,14 @@ export class FirebaseService {
   ) {}
 
   public initializeFirebaseAdmin() {
+    // TODO: add logger for unsuccessful initialization
     if (!admin.apps.length) {
-      if (this.config.get('firebase.useCredentials')) {
-        admin.initializeApp({
-          credential: admin.credential.cert(
-            this.config.get<string>('firebase.credentialsFilePath', ''),
-          ),
-          databaseURL: this.config.get<string>('firebase.databaseURL'),
-        });
-      } else {
-        admin.initializeApp();
-      }
+      admin.initializeApp({
+        credential: admin.credential.cert(
+          this.config.get<string>('firebase.credentialsFilePath', ''),
+        ),
+        databaseURL: this.config.get<string>('firebase.databaseURL'),
+      });
     }
   }
 
