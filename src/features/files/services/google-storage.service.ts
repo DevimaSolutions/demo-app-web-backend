@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { extname, join } from 'path';
 
 import { Bucket, Storage } from '@google-cloud/storage';
@@ -5,19 +6,28 @@ import { Injectable } from '@nestjs/common';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigService } from '@nestjs/config';
 
+import { GoogleCloudService } from '@/features/google-cloud';
+
 @Injectable()
 export class GoogleStorageService {
   private storage: Storage;
   private bucket: Bucket;
-  constructor(protected readonly config: ConfigService) {
-    const { bucket, projectId, privateKey, clientEmail } = this.config.get('google');
 
-    this.storage = new Storage({
-      projectId,
-      credentials: { client_email: clientEmail, private_key: privateKey },
-    });
+  constructor(
+    protected readonly config: ConfigService,
+    private readonly googleCloudService: GoogleCloudService,
+  ) {
+    const { bucket, serviceAccountConfigs } = this.config.get('google');
 
-    this.bucket = this.storage.bucket(bucket);
+    if (fs.existsSync(serviceAccountConfigs)) {
+      this.storage = new Storage({ keyFilename: serviceAccountConfigs });
+      this.bucket = this.storage.bucket(bucket);
+    } else {
+      this.googleCloudService.accessGoogleCloudSecretFile(serviceAccountConfigs).then((data) => {
+        this.storage = new Storage({ keyFilename: data });
+        this.bucket = this.storage.bucket(bucket);
+      });
+    }
   }
 
   async upload(file: Express.Multer.File, destination = '') {

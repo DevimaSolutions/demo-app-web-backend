@@ -13,6 +13,7 @@ import { AuthModule } from '@/features/auth';
 import { EnergyModule } from '@/features/energy';
 import { FilesModule } from '@/features/files';
 import { FirebaseModule } from '@/features/firebase';
+import { GoogleCloudModule } from '@/features/google-cloud';
 import { MailerModule } from '@/features/mailer';
 import { PaymentsModule } from '@/features/payments';
 import { ProfilesModule } from '@/features/profiles';
@@ -56,6 +57,7 @@ import { WebhooksModule } from '@/features/webhooks';
     WebhooksModule,
     FirebaseModule,
     EnergyModule,
+    GoogleCloudModule,
   ],
   controllers: [AppController],
   providers: [
